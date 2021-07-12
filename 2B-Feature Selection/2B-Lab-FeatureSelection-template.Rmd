@@ -1,0 +1,258 @@
+---
+title: "Lab 2B"
+subtitle: "Feature selection"
+date: "`r format(Sys.time(), '%Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+    number_sections: true
+    theme: paper
+    highlight: tango
+    code_folding: hide
+    pandoc_args: --output=2B-Lab-FeatureSelection-answers.html
+---
+
+
+```{r message = FALSE}
+knitr::opts_chunk$set(message=FALSE)
+library(ISLR)
+library(tidyverse)
+library(glmnet)
+library(caret)
+library(gridExtra)
+```
+
+
+---
+
+
+# Overview
+
+For this lab you need the packages `ISLR`, `ggplot2`, `glmnet`, `caret`, and `gridExtra`. 
+
+The data set for this lab is `College`, check the help page for its content. 
+
+The lab is structured as follows:
+
+1. Explore, normalize and standardize the data
+
+2. Split data in train/test set
+
+3. Train filter, wrapper and embedded methods, and compare test MSE
+
+4. Introduce two-way interactions effects, and train the lasso
+
+
+# Data preparation
+
+a. Display a summary of the data set. Check for impossible values (e.g. percentage outside the range 0-100), and delete these cases from the data (overwrite the original data).
+
+```{r}
+
+```
+
+
+b. Since we are going fir tlinear models, we want the variable in the data to have approximately normal distributions. To visually check for skew and outliers, standardized all variables in the data set (first convert the dichotomous factor `Private` into a numeric variable), and display the boxplots of the standardized variables in a single plot array.
+
+```{r}
+
+```
+
+
+c. Apply a normalizing log transformation to the variables with heavy right skew (for variables with left skew, first reverse the scores).  Make sure that before you transform the variables their minimum score is 1, in order to avoid taking the log of 0, which is infinite. For each transformed variable, visually check if the transformation had the desired normalizing effect. Check the boxplots of the transformed variables, and once you are satisfied about the result, save the resulting data (overwrite the previous version of `College`). 
+
+```{r}
+
+```
+
+d. Display 16 scatterplots with `Grad.Rate` on the y-axis and the respective 16 numeric predictors on x-axis (so exclude `Private`). Check the scatterplots for non-linearity. 
+
+```{r fig.asp=1}
+
+```
+
+
+
+---
+
+# Train/test set
+
+a. Create the vector `train` with the row numbers for the train set containing of 75% of the cases. Set the seed to 1 for reproducibility of the results.
+
+```{r}
+
+```
+
+
+---
+
+## Filter method
+
+Filter methods select a set of features before training the model. For these we will select features from the training set based on a minimum correlation with`Grad.Rate`. As selection criterion we use an absolute correlation larger than 0.3.
+
+a. Display the last column of the correlation matrix of the training set (the 18th column pertaining to outcome variable `Grad.Rate`). Which features satisfy the criterion?
+
+```{r}
+
+```
+
+b. As selection criterion we use an absolute correlation larger than 0.3. Make a character vector `vars` containing the names of the features that satisfy this criterion.
+
+
+```{r}
+
+```
+
+c. Fit the linear model to the training data with the features that satisfy the selection criterion as predictors of `Grad.Rate`, and save the object as `train_filter`.
+
+```{r}
+
+```
+
+
+d. Display the summary of `train_filter`. Although all predictors have an absolute correlation of at least .3 with `Grad.rate`, some of them are not significant as predictor? Why is that?
+
+```{r}
+
+```
+
+e. Obtain and save the predictions the test set
+
+```{r}
+
+```
+
+f. Compute and display the test MSE. Save this value as `filter_mse`.
+
+```{r}
+
+```
+
+---
+
+## Wrapper method
+
+Wrapper methods select features while training the model. Here we use the backward step-wise selection procedure. Check the help page of the function `step()` for assistance on how to conduct a backward step-wise selection. 
+
+a. Fit the linear model with all features as predictors, and apply the backward step-wise  `step()` procedure. Save the result under the name `train_step`. 
+
+```{r}
+
+```
+
+b. Display the summary of the step model. Compare the explained variance of this model and the filter model. Which model performs best on the training data?
+
+```{r}
+
+```
+
+
+c. Obtain and save the predictions of the step model for the test set.
+
+
+```{r}
+pred_step  <- predict(train_step, newdata = College[-train, ])
+```
+
+
+d. Compute the test MSE for the step model, and save it as `step_mse`.
+
+```{r}
+
+```
+
+
+## Embedded method
+
+In the embedded method, the feature selection process is embedded in the model training phase. We use the function `glmnet()` to fit the  lasso and ridge models to the training data. This function computes the deviance for a sequence of values of the hyperparameter `lambda`, which determines the budget for the coefficients. The function `cv.glmnet()` is then applied to object created with `glmnet()` to determine the optimal value for `lambda` with cross-validation. 
+
+a. Create the objects `train_lasso`  and `train_ridge` with `glmnet()`. Set the argument `alpha = 1` for the lasso, and `alpha = 0` for the ridge. Do not forget that the argument `x` has to be of class `matrix`!
+
+```{r}
+
+```
+
+
+b. Plot both `glmnet` objects. Interpret the plots.
+
+```{r fig.asp=1.2}
+
+```
+
+
+c. Cross-validate with `cv.glmnet()` to find the optimal `lambda` values for `alpha=0` an `alpha=1`. Include the argument `type.measure = "mse"`. Save the objects as `cv_ridge` and `cv_lasso`.
+
+```{r}
+
+```
+
+
+d. Plot both `cv.gmnet`  objects, and interpret.
+
+```{r}
+
+```
+
+e. Display a matrix with the coefficients of linear model with all features as predictors, and of the objects `cv_ridge` and `cv_lasso` in the columns. Round all coefficients to three decimals. Compare the effects of the shrinkage.
+
+```{r}
+
+```
+
+
+f. Obtain the predictions for the test set  - check the help page for `predict.cv.glmnet`() -  and compute and the test MSE's for the ridge and lasso.
+ 
+```{r}
+
+```
+
+
+g. Compare the test MSE for the filter method, the `step` function, and the ridge and lasso. Which method performs work best on the test data.
+
+```{r}
+
+```
+
+
+
+
+---
+
+
+# Interactions
+
+So far we have not considered any pairwise interactions in our models. It may very well be that that the effect of one feature on `Grad.rate` is moderated by another feature. The problem with finding relevant interactions is that there are a lot of them (${17\choose2}=136$). The lasso, however, is particularly suited for such a task.
+
+a. Obtain the model matrix of the model `Grad.Rate ~ .^2` for the training set (excluding the intercept), and cross-validate the lasso version of this model with `cv.glmnet()`. Save the the result as `cv_lasso2`
+
+```{r}
+
+```
+
+b. Plot the object. How many variables have nonzero coefficients at the optimal value for `lambda`?
+
+```{r}
+
+```
+
+
+c. Display the coefficients. How many of these are interaction effects?
+
+```{r}
+
+```
+
+d. Compute the test MSE for `cv_lasso2`. How does it compare to the models without interactions?
+ 
+```{r}
+
+```
+
+
+
+---
+
+END OF LAB
