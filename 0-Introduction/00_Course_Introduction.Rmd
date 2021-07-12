@@ -1,0 +1,138 @@
+---
+title: "S31: Data Analysis"
+subtitle: 'Course Introduction'
+urlcolor: blue
+output:
+  beamer_presentation:
+    theme: "metropolis"
+    latex_engine: xelatex
+fontsize: 10pt
+---
+
+
+
+
+
+## Summerschool Data Science 
+
+
+**Part of Data Science program**
+
+
+- Statistical programming with R
+
+- Multiple imputation in practice
+
+- Introduction to text mining
+
+- **Data analysis**
+
+- Applied text mining
+
+
+$~$ 
+
+DAV course materials:
+
+- links to slides, labs and literature in the course manual
+
+## Data science word cloud
+
+```{r echo=F, out.width="110%", out.width="80%"}
+knitr::include_graphics("pics/wordcloud.png")
+```
+
+## Data science process
+
+```{r echo=F, out.width="110%", out.width="80%"}
+knitr::include_graphics("pics/datascience.png")
+```
+
+## Data visualizations
+
+```{r echo=F, out.width="110%", out.width="80%"}
+knitr::include_graphics("pics/visualizations.jpg")
+```
+
+
+## Models & Algorithms
+
+```{r echo=F, out.width="100%"}
+knitr::include_graphics("pics/machinelearning.jpg")
+```
+
+
+## Manual
+
+![](pics/manual.png)
+
+
+
+
+## Aims
+
+
+**Data analysis**
+
+1. Basics of data visualization with `ggplot2`
+
+2. Overview of models/techniques for statistical learning
+
+3. Basic understanding the underlying algorithms
+
+4. Ability to apply data analysis techniques on data
+
+
+$~$
+
+Course is non-technical, emphasis on applications
+
+## Structure of the course
+
+**Day 1 to 4: Morning and afternoon sessions**
+
+- introduction new topic (45 min.)
+
+- R lab session (2 hr)
+
+- Q\&A R lab (45 min.)
+
+- lunch from 12:30 to 1:30 pm 
+
+$~$
+
+**Day 5: Presentations**
+
+- Groups of 3-6 students  
+
+- Prepare slides of a data analysis (morning)  
+
+- Present results slideshow (afternoon)
+
+
+## Code folding
+
+- Labs are HTML files
+
+- R code can be made visible by clicking the `CODE` button 
+
+- try before peeking, and experiment with the code (try out other options)
+
+![](pics/codefolding.png)
+
+## Rmd templates
+
+- Open the template in RStudio
+
+- write your code in the R chunks 
+
+- test it by clicking the ![](pics/arrow.png){width=30px} button
+
+- renders HTML document by clicking ![](pics/knit.png){width=30px} button
+
+
+![](pics/template.png)
+
+
+
+
