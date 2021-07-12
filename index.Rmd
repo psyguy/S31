@@ -1,0 +1,340 @@
+---
+title: "S31: Data Analysis"
+output: flexdashboard::flex_dashboard
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+
+
+Sidebar {.sidebar}
+=====================================================================
+
+**Day 1: Data science**
+
+a. Data visualization
+    
+b. Bias-variance trade-off
+
+**Day 2: Regression**
+
+a. Feature space expansions
+     
+b. Feature selection
+
+**Day 3: Classification**
+
+a. Logistic regression and LDA
+    
+b. Trees and SVMs
+
+**Day 4: Unsupervised learning**
+
+a. PCA
+    
+b. Clustering
+
+**Day 5: Presentations**
+
+a. Prepare a brief slide show
+
+b. Presentations
+
+
+Course description
+======================================================================
+
+Column
+-----------------------------------------------------------------------
+
+### Summerschool Utrecht Data Science course S31: Data Analysis 
+
+**Content**
+
+The course Data Analysis is part of a series of Data Science courses offered by Summerschool Utrecht. The course offers a range of statistical techniques and algorithms from statistics, machine learning and data mining to make predictions about future events and to uncover hidden structures in data. The course has a strong practical focus; participants actively learn how to apply these techniques to real data and how to interpret their results. The course covers both classical and modern techniques of data analysis.
+
+**Structure**
+
+Morning session (9:00-12:30) and afternoon sessions (13:30-17:00) consisting of:
+
+
+- slide presentation of new topic
+
+- R lab to practice with new topic
+
+- Q&A on the R lab
+
+
+**Software**
+
+The software needed for the R labs is freely available on the internet, and includes:
+
+- R
+
+- RStudio
+
+- R packages, including the `tidyverse` package 
+
+Make sure to you have the latest versions of R and RStudio installed, and that you regularly update your pacakges!
+
+**Course materials**
+
+The following course materials are available via the links in this manual:
+
+- slides
+
+- R labs (HTML)
+
+- R labs (R Markdown templates)
+
+The R labs include the exercises, and the R code to do these exercises. The R code is hidden, but can be made visible by clicking the `code` button. The recommended way to perform the analyses is to first try to write the code yourself, and only when you get stuck to use the `code` button. 
+
+The R Markdown templates include the text of the R labs and empty `R chunks` that can be used to do the exercises. When finished, clicking the `knit` button renders the original HTML, including all R code and output. It is highly recommended to use the `Rmd` lab templates to make the lab exercises in.  
+
+
+
+**References**
+
+- [James, Witten, Hastie & Tibshirani. (2013). An Introduction to Statistical Learning with Applications in R (ISLR), 1st ed. New York: Springer](https://static1.squarespace.com/static/5ff2adbe3fe4fe33db902812/t/6062a083acbfe82c7195b27d/1617076404560/ISLR%2BSeventh%2BPrinting.pdf){target="_blank"}
+
+- [Grolemund and Wickham (2016). R for Data Science](https://r4ds.had.co.nz/){target="_blank"}
+
+Day 1
+======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Morning session
+
+
+**Data visualization**
+
+Data visualization is an essential part of the data analysis process. By looking at your data you learn about the distribution of your variables, the relationships between variables, and spot outliers and other anomalies that might give you valuable insights with respect to the techniques and models that are appropriate for your data. 
+
+Data visualization is an art in itself. There are many ways to graphically represent your data, but the production of an insightful plot requires the necessary knowledge, skills and tools. In this session we discuss the principle's of Tufte for making excellent plots,the Grammar of Graphics to build plots layer-by-layer, and R package `ggplot2` (part of the `tidyverse` package) that is build on the Grammar of Graphics.  
+
+**Course materials**
+
+- [Lecture sheets](1A-Data Visualization/1A-Lecture-Data-Visualization.pdf){target="_blank"}
+
+- [R lab](1A-Data Visualization/1A-Lab-Data-Visualization.html){target="_blank"} 
+
+- [`R Markdown lab template`](1A-Data Visualization/1A-Lab-Data-Visualization-template.Rmd){target="_blank"} 
+
+**Recommended literature**
+
+- [R for Data Science: 3. Data visualization](https://r4ds.had.co.nz/data-visualisation.html){target="_blank"}
+
+- [R for Data Science: 28. Graphics for communication](https://r4ds.had.co.nz/graphics-for-communication.html){target="_blank"}
+
+- [ggplot2: Elegant Graphics for Data Analysis](https://ggplot2-book.org/){target="_blank"}
+
+Row
+-----------------------------------------------------------------------
+
+### Afternoon session
+
+**Bias-variance trade-off**
+
+The bias-variance trade-off is a central concept in supervised learning. The principle of supervised learning is to train a statistical model on existing data to make predictions on future data. For example, by analyzing data symptoms of patients with various skin problems, a model can be trained to detect the symptoms that are specific to skin cancer. This model can than be used to diagnose new patients. These models can vary in complexity, and the more complex the model, the better it performs on the training data. A good performance on the training data, however, does not guarantee a good performance on new data. This is because predictions of complex models have large variance, so that small changes in the data may result in large changes in the predictions. Simple models, on the other hand, do not have this problem, but their predictions may have a systematic bias. This phenomenon is known as the bias-variance trade-off, and the aim of the supervised learning is to find a compromise between model simplicity and complexity. The next five sessions we will discuss techniques to deal with the bias-variance trade-off.
+
+**Course materials**
+
+- [Lecture sheets](1B-Bias-Variance Trade-Off/1B-Lecture-Bias-Variance-trade-off.pdf){target="_blank"}
+
+- [R lab](1B-Bias-Variance Trade-Off/1B-Lab-Bias-Variance-trade-off.html){target="_blank"} 
+
+- [`R Markdown lab template`](1B-Bias-Variance Trade-Off/1B-Lab-Bias-variance-trade-off-template.Rmd){target="_blank"}
+
+**Recommended literature**
+
+- [ISLR: 2 Statistical learning; 5 Resampling Methods](https://static1.squarespace.com/static/5ff2adbe3fe4fe33db902812/t/6062a083acbfe82c7195b27d/1617076404560/ISLR%2BSeventh%2BPrinting.pdf){target="_blank"}
+
+
+Day 2
+======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Morning session
+
+
+**Feature space expansions**
+
+Regression models form the core of statistical analysis. Most commonly used is the linear regression model
+$y=\beta_0+\beta_1x_1+\beta_2x_2+\dots+\beta_px_p$. As the name suggests, this model assumes a linear relationship between the outcome variable $y$ and each of the respective features $x_1,x_2,\dots,x_p$. This linearity assumption, however, is a simplification of reality and may do a poor job in describing the true relationship between variables. Feature space expansion is a flexible tool for describing non-linear relationships between the outcome variable and the features. This session introduces expansion of the feature space with  polynomials, splines, interactions and regression trees. 
+
+**Course materials**
+
+- [Lecture sheets](2A-Feature Space Expansion/2A-Lecture-FeatureSpaceExpansions.pdf){target="_blank"}
+
+- [R lab](2A-Feature Space Expansion/2A-Lab-FeatureSpaceExpansions.html){target="_blank"} 
+
+- [`R Markdown lab template`](2A-Feature Space Expansion/2A-Lab-FeatureSpaceExpansions-template.Rmd){target="_blank"}
+
+- [`Fortune500.Rdata`](2A-Feature Space Expansion/data/Fortune500.Rdata)
+
+**Recommended literature**
+
+- [ISLR: 3 Linear regression; 7 Moving beyond linearity; 8 Tree-based methods ](https://static1.squarespace.com/static/5ff2adbe3fe4fe33db902812/t/6062a083acbfe82c7195b27d/1617076404560/ISLR%2BSeventh%2BPrinting.pdf){target="_blank"}
+
+
+
+
+
+Row
+-----------------------------------------------------------------------
+
+### Afternoon session
+
+**Feature selection**
+
+With the advent of Big Data enormous amounts of data have become available for analysis. In the context of supervised learning this means that huge numbers of features may be available to predict the behavior of an outcome variable. For example, training a model to diagnose breast cancer may involve 10,000 genomes as predictors. With large numbers of predictors, the risk of obtaining a high variance prediction is substantial. In this session we look at several feature selection methods that reduce model complexity while at the same time minimizing bias. These include filter methods, that select features before model training, wrapper methods that sequentially select features while training the model, and embedded methods where feature selection is an integral part of model training. Alternatives for reducing model complexity include the dimension reduction methods, but these will be discussed in more detail in the unsupervised learning sessions.  
+
+**Course materials**
+
+- [Lecture sheets](2B-Feature Selection/2B-Lecture-FeatureSelection.pdf){target="_blank"}
+
+- [R lab](2B-Feature Selection/2B-Lab-FeatureSelection.html){target="_blank"} 
+
+- [`R Markdown lab template`](2B-Feature Selection/2B-Lab-FeatureSelection-template.Rmd){target="_blank"}
+
+**Recommended literature**
+
+- [ISLR: 6 Linear model selection and regularization](https://static1.squarespace.com/static/5ff2adbe3fe4fe33db902812/t/6062a083acbfe82c7195b27d/1617076404560/ISLR%2BSeventh%2BPrinting.pdf){target="_blank"}
+
+Day 3
+======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Morning session
+
+
+**Logistic regression and LDA**
+
+Classification refers to supervised learning for categorical outcome variables. The aim of classification is to predict the class an observations belongs to based on a set of features. This session introduces two classical methods for classification; logistic regression  and linear discriminant analysis. The logistic regression model applies to outcomes with two classes. It estimates the probability of a "success" on the outcome variable, and classifies an observation as a success when this probability exceeds a certain threshold. Linear discriminant analysis is also suited for outcome variables with more than two classes, and it estimates linear discriminant functions that optimally separate between the classes. Since the MSE is not a useful fit criterion for classifying observations, model performance is evaluated with the confusion matrix, the AIC and/or a ROC curve,  
+**Course materials**
+
+- [Lecture sheets](3A-Logistic/3A-Lecture-Logistic.pdf){target="_blank"}
+
+- [R lab](3A-Logistic/3A-Lab-Logistic.html){target="_blank"} 
+
+- [`R Markdown lab template`](3A-Logistic/3A-Lab-Logistic-template.Rmd){target="_blank"}
+
+
+**Recommended literature**
+
+- [ISLR: 4 Classification](https://static1.squarespace.com/static/5ff2adbe3fe4fe33db902812/t/6062a083acbfe82c7195b27d/1617076404560/ISLR%2BSeventh%2BPrinting.pdf){target="_blank"}
+
+Row
+-----------------------------------------------------------------------
+
+### Afternoon session
+
+**Trees and SVMs**
+
+In this session we look at tree-based methods for classification. A difference with logistic regression is that tree-based methods do not estimate coefficients for the features, but instead partition the feature space in  a way that optimizes the predictions. The basic approach is to start with splitting the feature that yields the largest improvement, than find the next feature to split, and so on until the improvement is negligible. Since this approach is very much data-driven, it has high variance. Random forests, bagging, boosting and SVMs are tree-based methods that take measures that protect against high variance, at the cost of interpretability.
+
+**Course materials**
+
+- [Lecture sheets](3B-Trees/3B-Lecture-Trees.pdf)
+
+- [R lab](3B-Trees/3B-Lab-Trees.html){target="_blank"} 
+
+- [`R Markdown lab template`](3B-Trees/3B-Lab-Trees-template.Rmd){target="_blank"}
+
+**Recommended literature**
+
+- [ISLR: 8 Tree-based Methods; 9 Support Vector Machines](https://static1.squarespace.com/static/5ff2adbe3fe4fe33db902812/t/6062a083acbfe82c7195b27d/1617076404560/ISLR%2BSeventh%2BPrinting.pdf){target="_blank"}
+
+Day 4
+======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Morning session
+
+
+**Principal Components Analysis**
+
+Principal components analysis (PCA) is a data reduction technique. It's aim is to capture the information present in a large number of variables in a much smaller number of principal components. For example, a personality test may consist 5 groups of 10 questions each, with each group measuring a different personality trait. If the test is constructed well, the PCA will identify 5 principal components that each measure a different personality trait. By saving the indivdual scores on these principal components the dimension of the data is reduced from 50 to 5 variables, and the 5 variables can be used to make individual personality profiles.
+
+**Course materials**
+
+- [Lecture sheets](4A-PCA/4A-Lecture-PCA.pdf){target="_blank"}
+
+- [R lab](4A-PCA/4A-Lab-PCA.html){target="_blank"} 
+
+- [`R Markdown lab template`](4A-PCA/4A-Lab-PCA-template.Rmd){target="_blank"}
+
+- [`Profession.Rdata`](4A-PCA/Profession.RData)
+
+- [`Profession.txt`](4A-PCA/Profession.txt){target="_blank"}
+
+- [`faces.Rdata`](4A-PCA/faces.RData)
+
+**Recommended literature**
+
+- [ISLR: 10 Unsupervised Learning](https://static1.squarespace.com/static/5ff2adbe3fe4fe33db902812/t/6062a083acbfe82c7195b27d/1617076404560/ISLR%2BSeventh%2BPrinting.pdf){target="_blank"}
+
+Row
+-----------------------------------------------------------------------
+
+### Afternoon session
+
+**Clustering**
+
+Clustering is an unsupervised statistical learning method that aims at finding homogeneous groups of observations. The two basic clustering methods are k-means and hierarchical clustering. In k-means clustering the user specifies the number of clusters, and the algorithm optimally divides the observations. This technique is helpful in for example marketing to identifying different groups of customers. Hierarchical clustering is useful for making taxonomies like the subdivision of organisms in species, subspecies and varieties.
+
+**Course materials**
+
+- [Lecture sheets](4B-Clustering/4b-Lecture-Clustering.pdf){target="_blank"}
+
+- [R lab](4B-Clustering/4B-Lab-Clustering.html){target="_blank"} 
+
+- [`R Markdown lab template`](4B-Clustering/4B-Lab-Clustering-template.Rmd){target="_blank"}
+
+- [`Profession.Rdata`](4B-Clustering/Profession.RData)
+
+- [`wine.Rdata`](4B-Clustering/data/wine.Rdata)
+
+- [`animals.Rdata`](4B-Clustering/animals.Rdata)
+
+**Recommended literature**
+
+- [ISLR: 10 Unsupervised Learning](https://static1.squarespace.com/static/5ff2adbe3fe4fe33db902812/t/6062a083acbfe82c7195b27d/1617076404560/ISLR%2BSeventh%2BPrinting.pdf){target="_blank"}
+
+Day 5
+======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Morning session
+
+
+**Preparation of presentation**
+
+Now that you have become acquainted with a whole range of data science techniques for data analysis, it is time to put them in to practice on your own data. Perform a regression analysis on your data using feature space expansions, feature selection methods or use any of the classification methods if you have a categorical outcome, and cross-validate where necessary. If you do no have an outcome variable, perform a PCA or cluster the observations. 
+
+Make a brief presentation of your analysis (5-10 minutes), for example in an R Markdown [R Markdown ioslide presentation](https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html){target="_blank"} or [R Markdown beamer presentation](https://bookdown.org/yihui/rmarkdown/beamer-presentation.html){target="_blank"}, and present it to the other students in the afternoon session. You are encouraged to work in groups, so that students who are interested but do not have a suitable data set of their own can also participate. 
+
+If you do not have any data and are not in a group, there is the opportunity to play around with the [Neural Networks: Playground Exercises](https://developers.google.com/machine-learning/crash-course/introduction-to-neural-networks/playground-exercises){target="_blank"}. Students who satisfactorilly solve the Neural Net Spiral exercise are encouraged to present their solution.
+
+
+Row
+-----------------------------------------------------------------------
+
+### Afternoon session
+
+**Presentations**
+
+Presentations of your data analysis (or your neural network).
+
+
