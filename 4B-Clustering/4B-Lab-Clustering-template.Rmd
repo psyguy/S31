@@ -1,0 +1,161 @@
+---
+title: "DAV: Lab 4B"
+subtitle: "Clustering"
+date: "`r format(Sys.time(), '%Y')`"
+urlcolor: blue
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+    theme: paper
+    highlight: tango
+---
+
+
+```{r message = FALSE}
+knitr::opts_chunk$set(message=FALSE)
+library(stylo)
+library(psych)
+library(factoextra)
+library(dplyr)
+```
+
+---
+
+
+In this lab
+
+# Wine data
+
+The `wine` data include 13 features of three different wine cultivars in Italy. 
+
+a. Load the `wine.Rdata` file in workspace, and display a summary of the `wine` data.
+
+```{r}
+
+```
+
+
+b. Perform six k-means cluster analyses on the 13 (standardized) features (so exclude the variable `Cultivar`) with 1 to 6 to centers, respectively, and save the objects. Then plot the total within sum of squares of the six analyses to determine the optimal number of clusters.
+
+```{r}
+
+```
+
+c. Display a confusion matrix of the three clusters of the k-means analysis with three centers with the three levels of the variable `Cultivar` of the `wine` data. Did the cluster analysis recover the cultivars?
+
+
+```{r}
+
+```
+
+
+# Novels
+
+In the previous lab we did a PCA on the frequently used  words used in the novels by the Bronthe sister and Jane Austin. In this lab we perform a k-means analysis on these data.
+
+a. Rerun the code on `novels` data that produces the `freqs` object.   
+
+```{r echo=F}
+
+```
+
+
+b. Perform a k-means clustering on the `freqs` object with 4 clusters, i.e. one cluster for each author. Tabulate the row names of `freqs` (author_novel) against the cluster numbers. How well did the k-means solution do?
+
+```{r}
+
+```
+
+c. Visualize the clustering with the function `fviz_cluster` of the package `factoextra`. To make this function work, you first have to convert the class of the `freqs` object from `stylo.data` to `data.frame`. 
+
+```{r}
+
+```
+
+
+d. Also perform a hierarchical clustering on the `freqs` data, and plot the dendogram, and add rectangles for 4 clusters. Do the clusters correspond to the authors?
+
+
+```{r}
+
+```
+
+
+# Animals
+
+The data set `Animals` contains the brain and body weights for 28 species of land animals. This data lends itself very well for making a taxonomy. We will perform a series of hierarchical cluster analyses with varying options. 
+
+
+a. Load  `animals.Rdata` in workspace, and display the rownames and the summary of the `animals` data.
+
+```{r}
+
+```
+b. Plot the dendograms of the hierarchical cluster analyses on the original `animals` data, one with the default  linkage method "complete", and one one with "ward.D2" (if you like, you can also look at other linkage methods). What do you expect to see, given that you did not standardize the features?
+
+```{r}
+
+```
+
+
+
+c. Re-plot the dendograms of the previous exercise , but now with after standardizing the features? Does this improve the clustering?
+
+```{r}
+
+```
+
+d. Display boxplots of the standardized features. You will see that the 1st two features have an extremely skewed distribution. 
+
+```{r}
+
+```
+
+f. Re-plot the dendograms of the standardized features, after applying a logarithmic transformation to the 1st two features of `animals`. 
+
+```{r}
+
+```
+
+e. Which of the  taxonomies you created above do you like best?
+
+---
+
+END OF LAB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
