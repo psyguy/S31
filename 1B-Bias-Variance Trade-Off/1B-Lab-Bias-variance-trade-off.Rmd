@@ -1,0 +1,227 @@
+---
+title: "Lab 1B"
+subtitle: "Bias-variance trade-off"
+date: "`r format(Sys.time(), '%Y')`"
+params:
+  answers: true
+urlcolor: blue
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+    number_sections: false
+    theme: paper
+    highlight: tango
+    code_folding: show
+    pandoc_args: --output=1B-Lab-Bias-Variance-trade-off-answers.html
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(eval=params$answers, message=FALSE)
+```
+
+
+---
+
+In this lab you predict `mpg` (miles per gallon) from `displacement` (engine displacement). The variables are in the data set `Auto` from the package `ISLR`. You compare the performance of 3 distinct model; linear regression and quadratic regression models, and $k$-nearest neighbors, and you select the best model using the train/dev/test paradigm.
+
+The lab is structured as follows:
+
+1. Partition and visualize the data
+
+2. Train the models 
+
+3. Test the models
+
+
+# Partition and visualize the data
+
+a. Before you start, you need to load the packages `ISRL`, `ggplot2` and `caret`, and optionally `dplyr` (if you are familiar with his package). 
+
+
+```{r}
+library(ggplot2)
+library(caret)
+library(ISLR)
+library(dplyr)
+```
+
+
+
+b. Partition the data in a training set `Train` consisting of 80% of the data, and a test set `Test` consisting of the remaining 20% of the data. Use the `caret` function `createDataPartition()` to get the vector with the row numbers of the training set. At the top of the R chunk, set the seed to 1 for reproducibility.
+
+
+```{r}
+set.seed(1)
+
+inTrain <- createDataPartition(y = Auto$mpg, p = .8, list = FALSE)
+
+Train <- Auto[inTrain, ]
+
+Test  <- Auto[-inTrain, ]
+```
+
+
+c. Display a scatter plot with `displacement` on the x-axis and `mpg` on the y-axis. Display the cases in the training set in blue, and the cases in the test set in red.
+
+```{r}
+ggplot() + 
+  geom_point(Train, mapping = aes(displacement, mpg), col = "blue") +
+  geom_point(Test, mapping = aes(displacement, mpg), col = "red") +
+  theme_minimal()
+
+```
+
+# Training the models
+
+## Linear regression model
+
+The linear regression model to be fitted is
+
+$$\widehat{mpg}=\beta_0+\beta_1\cdot{displacement}$$
+
+The linear regression model is fitted in R with the function `lm()`. If you are unfamiliar with this function, check its help page for you begin.
+
+
+a. Fit the model to the training set, save the `lm` object under the name `linear`. 
+
+```{r}
+linear <- lm(mpg ~ displacement, data = Train)
+```
+
+b. Display and interpret the summary of this model.
+
+```{r}
+summary(linear)
+```
+
+
+c. Compute the training MSE for this model as the mean of the squared residuals (to be extracted from `linear` with the function `resid`), and display its value. 
+
+```{r}
+mean(resid(linear)^2)
+```
+
+
+# Quadratic regression model
+
+The quadratic regression model to be fitted is
+
+$$\widehat{mpg}=\beta_0+\beta_1\cdot{displacement}+\beta_2\cdot{displacement}^2$$
+
+The square of `displacement` can be included in the model formula with `I(displacement^2)` (the `I()` function literally performs the specified operation).
+
+a. Fit the quadratic regression model to the training data, and save the object as `quadratic`.
+
+
+```{r}
+quadratic <- lm(mpg ~ displacement + I(displacement^2), data = Train)
+```
+
+b. Display and interpret the summary of this model.
+
+```{r}
+summary(quadratic)
+```
+
+
+
+c. Compute the training MSE for this model, and compare it to the training MSE of the linear model. Which model performs best on the training set? 
+
+```{r}
+mean(resid(quadratic)^2)
+```
+
+
+## $k$-nearest neighbor
+
+The KNN model does have a hyperparameter - the number of nearest neighbors $k$ - so cross-validation is necessary to determine the optimal value for $k$. 
+
+The R code for training the KNN model with 5-fold cross validation can be found in the lecture slides 
+
+
+a. Perform a 5-fold cross validation on the training for $k\in\{ 1, 2, 5, 10, 25, 50, 100\}$ with the function `train()`, and save to object under the name `knn`.
+
+
+```{r}
+knn <- train(mpg ~ displacement, 
+             data = Train, 
+             method = "knn",
+             tuneGrid = expand.grid(k = c(1, 2, 5, 10, 25, 50, 100)),
+             trControl = trainControl(method = "cv", number = 5))
+```
+
+
+b. Display and interpret the content of `knn`. Which value of $k$ has the lowest RMSE? (The RMSE is the square root of the MSE.)
+
+```{r}
+knn
+```
+
+
+
+c. Compare the training MSE of the KNN model to those of the linear and quadratic model. Which model performs best on the training set?
+
+```{r}
+min(knn$results$RMSE^2)
+```
+
+
+## Visualizing the predictions
+
+To visualize the predictions of the models, we first need to add the fitted values of the three models to the training set. The fitted values can be obtained with the function `predict(<fitted object>, data = Train)`.
+
+a. Add the fitted values of the three models to `Train` under the names `pred_linear`, `pred_quadratic` and `pred_knn`. 
+
+```{r}
+Train <- Train %>% 
+  mutate(pred_linear    = predict(linear,    Train),
+         pred_quadratic = predict(quadratic, Train),
+         pred_knn       = predict(knn,       Train))
+```
+
+
+b. Display the scatterplot for the training set, and add the regression lines using `geom_line()` for each of the three models. Give each line a different color.
+
+```{r}
+ggplot(Train) + 
+  geom_point(aes(displacement, mpg)) +
+  geom_line(aes(x = displacement, y = pred_linear), col = "blue") +
+  geom_line(aes(x = displacement, y = pred_quadratic), col = "red") +
+  geom_line(aes(x = displacement, y = pred_knn), col = "purple") +
+  theme_minimal()
+
+```
+
+
+# Testing the models
+
+To test the models, you need to obtain the predictions of the models for the test, and then compute the MSE for each model. The code for obtaining the predictions is the same as in the previous exercise, but now with `Test` as data argument.
+
+
+a. Add the predictions of the three models for the test set to `Test`.
+
+```{r}
+Test <- Test %>% 
+  mutate(pred_linear    = predict(linear,    Test),
+         pred_quadratic = predict(quadratic, Test),
+         pred_knn       = predict(knn,       Test))
+```
+
+
+b. Display the test MSE for the three models. Which one performs best on the test set? And what do you conclude about the other two models, are they under- or overfitting the data?
+
+
+```{r}
+Test %>% summarise(testMSE_linear    = mean((mpg - pred_linear)^2),
+                   testMSE_quadratic = mean((mpg - pred_quadratic)^2),
+                   testMSE_knn       = mean((mpg - pred_knn)^2)) 
+```
+
+
+---
+
+
+END OF LAB
