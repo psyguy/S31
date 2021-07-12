@@ -1,0 +1,306 @@
+---
+title: "S31: Data Analysis"
+subtitle: "Data Visualization"
+author: "Maarten Cruyff"
+output:
+  beamer_presentation:
+    theme: "metropolis"
+    latex_engine: xelatex
+fontsize: 10pt
+    
+---
+ 
+
+```{r include=F, message=F}
+library(tidyverse)
+library(gridExtra)
+```
+
+
+
+
+## Program
+
+![](pics/content.png)
+
+
+## Content
+
+**Data visualization**
+
+
+1. Exploratory data analysis
+
+2. Tufte's Principles of Graphical Excellence
+
+3. Grammar of Graphics
+
+4. Some examples
+
+5. Lab preview
+
+## What's data visualization?
+
+Communication of data by encoding it as visual objects, i.e.
+
+- dots, lines, bars, etc.
+
+
+$~$
+
+to make data more accessible, understandable and usable.
+
+## Integral part of data science process
+
+```{r echo=F, out.width="100%"}
+knitr::include_graphics("pics/datascience.png")
+```
+
+
+## Exploratory data analysis
+
+Visualize variation and covariation in your data
+
+- discover unexpected patterns in your data
+
+- detect outliers and other anomalies
+
+- understand your data
+
+$~$
+
+Get new ideas about your data!
+
+## Early example
+
+\footnotesize 
+
+The 1854 Soho cholera outbreak was not due to 'miasma' (John Snow)
+
+```{r echo=F, fig.align="center"}
+knitr::include_graphics("pics/JohnSnow.jpg")
+```
+
+# Tufte's Principles of Graphical Excellence
+
+## Guidelines for representing visual information 
+
+"Graphical excellence is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space." **Edward R. Tufte, The Visual Display of Quantitative Information**
+
+$~$
+
+- Proportionality principle
+
+- Maximize data-to-ink ratio
+
+- Omit chart junk
+
+
+## Proportionality principle
+
+\footnotesize
+
+- proportions should correspond to area/surface 
+
+
+```{r echo=F, out.width="50%", fig.align = 'center'}
+knitr::include_graphics("pics/Junk.jpg")
+```
+
+
+## Early example
+
+```{r echo=F, out.width="90%", fig.align = 'center'}
+knitr::include_graphics("pics/Nightingale-mortality.jpg")
+```
+
+## Maximize data-to-ink ratio
+
+- use of colors and text sparsely
+
+```{r echo=F, out.width="80%", fig.align = 'center'}
+knitr::include_graphics("pics/DataInk.jpg")
+```
+
+
+## Omit chart junk
+
+
+```{r echo=F, out.width="100%", fig.align = 'center'}
+knitr::include_graphics("pics/junk-diamonds.jpg")
+```
+
+
+
+## Tufte in practice
+
+```{r echo=F, out.width="60%", fig.align = 'center'}
+knitr::include_graphics("pics/tufte-scatter.png")
+```
+
+
+# Grammar of Graphics
+
+## R data science packages
+
+The `tidyverse` package 
+
+```{r echo=F, out.width="90%"}
+knitr::include_graphics("pics/tidyverse.png")
+```
+
+
+## The `ggplot2` package
+
+Grammar of Graphics
+
+- Build plots layer-by-layer
+
+```{r echo=F, out.width="100%"}
+knitr::include_graphics("pics/grammargraphics.png")
+```
+
+## Content of building blocks
+
+```{r echo=F, out.width="100%"}
+knitr::include_graphics("pics/grammar.png")
+```
+
+
+## Translation to aesthetics, geoms, etc.
+
+
+```{r echo=F, out.width="100%"}
+knitr::include_graphics("pics/ChartSuggestions.jpg")
+```
+
+# Using `ggplot()` 
+
+## Data and aesthetics
+
+The function `ggplot()` has two main arguments:
+
+```{r eval=F}
+ggplot(data = <data>, mapping = aes(x = <var>, y = <var>, ...))
+```
+
+- `<data>` name of the data set 
+
+- `mapping` maps variables to `aes`thetics (axis, color, group, etc.) 
+
+## Example
+
+- `ggplot(mpg)` creates an empty plot array for data set `mpg`
+
+- `aes(x = cty, y = displ)` maps variable values to axes
+
+\scriptsize
+```{r fig.asp = .4, message=F}
+grid.arrange(
+  ggplot(mpg),                                           
+  ggplot(mpg, aes(x = cty, y = displ)),                           
+nrow = 1)
+```
+
+## Geometrics
+
+Geoms define shapes for representation (lines, points, bars, etc.)
+
+- geoms are added with `+` sign
+
+- multiple geoms can be added to same plot (e.g points and  lines)
+
+
+```{r eval=F}
+ggplot(data = <data>, mapping = aes(x = <var>, y = <var>)) +
+  geom_point() +
+  geom_line()
+```
+
+## Example
+
+Scatter plot plus regression line
+
+\scriptsize
+```{r message=F, fig.asp=.45}
+ggplot(mpg, aes(x = cty, y = displ)) +
+  geom_point() +
+  geom_smooth()
+```
+
+## Another example
+
+\scriptsize
+```{r fig.asp = .4, message=F}
+grid.arrange(
+  
+  ggplot(mpg) + 
+    geom_bar(aes(class)),
+  
+  ggplot(mpg) + 
+    geom_count(aes(class, drv)),
+
+  nrow = 1)
+```
+
+
+## Coordinates and scales 
+
+Flip the axis or transform the scales of the axes
+
+\footnotesize
+```{r fig.asp = .4, message=F}
+grid.arrange(
+  ggplot(mpg) + geom_boxplot(aes(manufacturer, hwy)) + coord_flip(),
+  ggplot(mpg) + geom_boxplot(aes(manufacturer, hwy)) + coord_flip() + 
+    scale_y_log10(),
+nrow = 1)
+```
+
+## Facets
+
+Make separate plots for the levels of a categorical variable (`factor`)
+
+\footnotesize
+```{r fig.height= 4}
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point() +
+  facet_wrap(vars(class)) 
+```
+
+## Themes
+
+\scriptsize
+```{r fig.asp = .5, message=F}
+grid.arrange(
+  ggplot(mpg) + geom_point(aes(displ, hwy)) + theme_light(),
+  ggplot(mpg) + geom_point(aes(displ, hwy)) + theme_classic(),
+  ggplot(mpg) + geom_point(aes(displ, hwy)) + theme_minimal(),
+  ggplot(mpg) + geom_point(aes(displ, hwy)) + theme_void(),
+  nrow = 2)
+```
+
+
+
+
+
+## Preview lab 1A
+
+1. Make plots with `ggplot2`
+
+2. Combine aesthetics, geoms, facets, themes
+
+
+$~$
+
+Make the exercises in the R Markdown template 
+
+- Open template in RStudio and read the instructions
+
+- Save the file in an appropriate folder
+
+- Insert R code in the R chunks
+
+- Run the chunks to test for errors 
+
+- Knit the HTML file when the code is error free
