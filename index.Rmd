@@ -242,7 +242,7 @@ In this session we look at tree-based methods for classification. A difference w
 
 **Course materials**
 
-- [Lecture sheets](3B-Trees/3B-Lecture-Trees.pdf)
+- [Lecture sheets](3B-Trees/3B-Lecture-Trees.pdf){target="_blank"}
 
 - [R lab](3B-Trees/3B-Lab-Trees.html){target="_blank"} 
 
