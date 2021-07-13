@@ -3,7 +3,7 @@ title: "Lab 4A"
 subtitle: "Principal Components Analysis"
 date: "`r format(Sys.time(), '%Y')`"
 params:
-  answers: true
+  answers: false
 urlcolor: blue
 output: 
   html_document:
@@ -15,7 +15,7 @@ output:
     theme: paper
     highlight: tango
     code_folding: hide
-    pandoc_args: --output=4A-Lab-PCA-answers.html
+    pandoc_args: --output=4A-Lab-PCA.html
 ---
 
 
