@@ -3,7 +3,7 @@ title: "DAV: Lab 4B"
 subtitle: "Clustering"
 date: "`r format(Sys.time(), '%Y')`"
 params:
-  answers: true
+  answers: false
 urlcolor: blue
 output: 
   html_document:
@@ -14,7 +14,7 @@ output:
     theme: paper
     highlight: tango
     code_folding: hide
-    pandoc_args: --output=4B-Lab-Clustering-answers.html
+    pandoc_args: --output=4B-Lab-Clustering.html
 ---
 
 
@@ -29,7 +29,7 @@ library(dplyr)
 ---
 
 
-In this lab
+For this lab you need the packages `stylo`, `psych`, and `factoextra`.
 
 # Wine data
 

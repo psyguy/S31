@@ -25,7 +25,7 @@ library(dplyr)
 ---
 
 
-In this lab
+For this lab you need the packages `stylo`, `psych`, and `factoextra`.
 
 # Wine data
 
