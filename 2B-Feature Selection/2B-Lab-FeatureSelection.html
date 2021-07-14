@@ -358,8 +358,6 @@ div.tocify {
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span></code></pre></div>
 <hr />
-<div id="overview" class="section level1" number="1">
-<h1 number="1"><span class="header-section-number">1</span> Overview</h1>
 <p>For this lab you need the packages <code>ISLR</code>, <code>ggplot2</code>, <code>glmnet</code>, <code>caret</code>, and <code>gridExtra</code>.</p>
 <p>The data set for this lab is <code>College</code>, check the help page for its content.</p>
 <p>The lab is structured as follows:</p>
@@ -369,9 +367,8 @@ div.tocify {
 <li><p>Train filter, wrapper and embedded methods, and compare test MSE</p></li>
 <li><p>Introduce two-way interactions effects, and train the lasso</p></li>
 </ol>
-</div>
-<div id="data-preparation" class="section level1" number="2">
-<h1 number="2"><span class="header-section-number">2</span> Data preparation</h1>
+<div id="data-preparation" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> Data preparation</h1>
 <ol style="list-style-type: lower-alpha">
 <li>Display a summary of the data set. Check for impossible values (e.g. percentage outside the range 0-100), and delete these cases from the data (overwrite the original data).</li>
 </ol>
@@ -381,7 +378,7 @@ div.tocify {
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Grad.Rate <span class="sc">&lt;=</span> <span class="dv">100</span>,</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>         PhD <span class="sc">&lt;=</span> <span class="dv">100</span>)</span></code></pre></div>
 <ol start="2" style="list-style-type: lower-alpha">
-<li>Since we are going fir tlinear models, we want the variable in the data to have approximately normal distributions. To visually check for skew and outliers, standardized all variables in the data set (first convert the dichotomous factor <code>Private</code> into a numeric variable), and display the boxplots of the standardized variables in a single plot array.</li>
+<li>Since we are going fit linear models, we want the variables in the data to have approximately normal distributions. To visually check for skew and outliers, standardize all variables in the data set (first convert the dichotomous factor <code>Private</code> into a numeric variable), and display the boxplots of the standardized variables in a single plot array.</li>
 </ol>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>College <span class="sc">%&gt;%</span> </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Private =</span> <span class="fu">as.numeric</span>(Private),</span>
@@ -391,7 +388,7 @@ div.tocify {
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <ol start="3" style="list-style-type: lower-alpha">
-<li>Apply a normalizing log transformation to the variables with heavy right skew (for variables with left skew, first reverse the scores). Make sure that before you transform the variables their minimum score is 1, in order to avoid taking the log of 0, which is infinite. For each transformed variable, visually check if the transformation had the desired normalizing effect. Check the boxplots of the transformed variables, and once you are satisfied about the result, save the resulting data (overwrite the previous version of <code>College</code>).</li>
+<li>Apply a normalizing log transformation to the variables with heavy skew (for variables with left skew, first reverse the scores). Make sure that before you transform the variables their minimum score is 1, in order to avoid taking the log of 0, which is infinite. Display the boxplots of the transformed variables to check if the transformation had the desired effect, and then save the resulting data (overwrite the previous version of <code>College</code>).</li>
 </ol>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>College <span class="ot">&lt;-</span> College <span class="sc">%&gt;%</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Private =</span> <span class="fu">as.numeric</span>(Private),</span>
@@ -411,27 +408,27 @@ div.tocify {
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">17</span>)<span class="fu">plot</span>(College[, <span class="fu">c</span>(i, <span class="dv">18</span>)], <span class="at">cex =</span> .<span class="dv">7</span>)</span></code></pre></div>
 <hr />
 </div>
-<div id="traintest-set" class="section level1" number="3">
-<h1 number="3"><span class="header-section-number">3</span> Train/test set</h1>
+<div id="traintest-set" class="section level1" number="2">
+<h1 number="2"><span class="header-section-number">2</span> Train/test set</h1>
 <ol style="list-style-type: lower-alpha">
 <li>Create the vector <code>train</code> with the row numbers for the train set containing of 75% of the cases. Set the seed to 1 for reproducibility of the results.</li>
 </ol>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(<span class="at">y =</span> College<span class="sc">$</span>Grad.Rate, <span class="at">p =</span> .<span class="dv">75</span>, <span class="at">list =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <hr />
-<div id="filter-method" class="section level2" number="3.1">
-<h2 number="3.1"><span class="header-section-number">3.1</span> Filter method</h2>
-<p>Filter methods select a set of features before training the model. For these we will select features from the training set based on a minimum correlation with<code>Grad.Rate</code>. As selection criterion we use an absolute correlation larger than 0.3.</p>
+<div id="filter-method" class="section level2" number="2.1">
+<h2 number="2.1"><span class="header-section-number">2.1</span> Filter method</h2>
+<p>Filter methods select a set of features before training the model. For these we will select features from the training set based on a minimum correlation with <code>Grad.Rate</code>. As selection criterion we use an absolute correlation larger than 0.3.</p>
 <ol style="list-style-type: lower-alpha">
 <li>Display the last column of the correlation matrix of the training set (the 18th column pertaining to outcome variable <code>Grad.Rate</code>). Which features satisfy the criterion?</li>
 </ol>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(College[train, ])[<span class="sc">-</span><span class="dv">18</span>, <span class="dv">18</span>] <span class="sc">%&gt;%</span>  <span class="fu">round</span>(<span class="dv">3</span>) </span></code></pre></div>
 <ol start="2" style="list-style-type: lower-alpha">
-<li>As selection criterion we use an absolute correlation larger than 0.3. Make a character vector <code>vars</code> containing the names of the features that satisfy this criterion.</li>
+<li>Make a character vector <code>vars</code> containing the names of the features that satisfy our selection criterion.</li>
 </ol>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">abs</span>(<span class="fu">cor</span>(College[train, ])[<span class="sc">-</span><span class="dv">18</span>, <span class="dv">18</span>]) <span class="sc">&gt;</span> .<span class="dv">3</span>)</span></code></pre></div>
 <ol start="3" style="list-style-type: lower-alpha">
-<li>Fit the linear model to the training data with the features that satisfy the selection criterion as predictors of <code>Grad.Rate</code>, and save the object as <code>train_filter</code>.</li>
+<li>Fit the linear model to the training data with the selected features as predictors of <code>Grad.Rate</code>, and save the object as <code>train_filter</code>.</li>
 </ol>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>train_filter <span class="ot">&lt;-</span> <span class="fu">lm</span>(Grad.Rate <span class="sc">~</span> ., <span class="at">data =</span> College[train, <span class="fu">c</span>(vars, <span class="dv">18</span>)])</span></code></pre></div>
 <ol start="4" style="list-style-type: lower-alpha">
@@ -439,7 +436,7 @@ div.tocify {
 </ol>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(train_filter)</span></code></pre></div>
 <ol start="5" style="list-style-type: lower-alpha">
-<li>Obtain and save the predictions the test set</li>
+<li>Obtain and save the predictions for the test set</li>
 </ol>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>filter_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_filter, <span class="at">newdata =</span> College[<span class="sc">-</span>train, ])</span></code></pre></div>
 <ol start="6" style="list-style-type: lower-alpha">
@@ -448,8 +445,8 @@ div.tocify {
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>filter_mse  <span class="ot">&lt;-</span> <span class="fu">mean</span>((College[<span class="sc">-</span>train, <span class="st">&quot;Grad.Rate&quot;</span>] <span class="sc">-</span> filter_pred)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div>
 <hr />
 </div>
-<div id="wrapper-method" class="section level2" number="3.2">
-<h2 number="3.2"><span class="header-section-number">3.2</span> Wrapper method</h2>
+<div id="wrapper-method" class="section level2" number="2.2">
+<h2 number="2.2"><span class="header-section-number">2.2</span> Wrapper method</h2>
 <p>Wrapper methods select features while training the model. Here we use the backward step-wise selection procedure. Check the help page of the function <code>step()</code> for assistance on how to conduct a backward step-wise selection.</p>
 <ol style="list-style-type: lower-alpha">
 <li>Fit the linear model with all features as predictors, and apply the backward step-wise <code>step()</code> procedure. Save the result under the name <code>train_step</code>.</li>
@@ -468,8 +465,8 @@ div.tocify {
 </ol>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(step_mse <span class="ot">&lt;-</span> <span class="fu">mean</span>((College[<span class="sc">-</span>train, <span class="st">&quot;Grad.Rate&quot;</span>] <span class="sc">-</span> pred_step)<span class="sc">^</span><span class="dv">2</span>))</span></code></pre></div>
 </div>
-<div id="embedded-method" class="section level2" number="3.3">
-<h2 number="3.3"><span class="header-section-number">3.3</span> Embedded method</h2>
+<div id="embedded-method" class="section level2" number="2.3">
+<h2 number="2.3"><span class="header-section-number">2.3</span> Embedded method</h2>
 <p>In the embedded method, the feature selection process is embedded in the model training phase. We use the function <code>glmnet()</code> to fit the lasso and ridge models to the training data. This function computes the deviance for a sequence of values of the hyperparameter <code>lambda</code>, which determines the budget for the coefficients. The function <code>cv.glmnet()</code> is then applied to object created with <code>glmnet()</code> to determine the optimal value for <code>lambda</code> with cross-validation.</p>
 <ol style="list-style-type: lower-alpha">
 <li>Create the objects <code>train_lasso</code> and <code>train_ridge</code> with <code>glmnet()</code>. Set the argument <code>alpha = 1</code> for the lasso, and <code>alpha = 0</code> for the ridge. Do not forget that the argument <code>x</code> has to be of class <code>matrix</code>!</li>
@@ -500,7 +497,7 @@ div.tocify {
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">alpha =</span> <span class="dv">1</span>, </span>
 <span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">type.measure =</span> <span class="st">&quot;mse&quot;</span>)</span></code></pre></div>
 <ol start="4" style="list-style-type: lower-alpha">
-<li>Plot both <code>cv.gmnet</code> objects, and interpret.</li>
+<li>Plot both <code>cv.glmnet</code> objects, and interpret.</li>
 </ol>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cv_ridge)</span>
@@ -510,7 +507,7 @@ div.tocify {
 </ol>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cbind</span>(<span class="fu">coef</span>(<span class="fu">lm</span>(Grad.Rate <span class="sc">~</span> . , College[train, ])), <span class="fu">coef</span>(cv_ridge), <span class="fu">coef</span>(cv_lasso)), <span class="dv">3</span>)</span></code></pre></div>
 <ol start="6" style="list-style-type: lower-alpha">
-<li>Obtain the predictions for the test set - check the help page for <code>predict.cv.glmnet</code>() - and compute and the test MSE’s for the ridge and lasso.</li>
+<li>Obtain the predictions for the test set - check the help page for <code>predict.cv.glmnet()</code> - and compute and the test MSE’s for the ridge and lasso.</li>
 </ol>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pred_ridge <span class="ot">&lt;-</span> <span class="fu">predict</span>(cv_ridge, <span class="at">newx =</span> <span class="fu">as.matrix</span>(College[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">18</span>]))</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -527,8 +524,8 @@ div.tocify {
 <hr />
 </div>
 </div>
-<div id="interactions" class="section level1" number="4">
-<h1 number="4"><span class="header-section-number">4</span> Interactions</h1>
+<div id="interactions" class="section level1" number="3">
+<h1 number="3"><span class="header-section-number">3</span> Interactions</h1>
 <p>So far we have not considered any pairwise interactions in our models. It may very well be that that the effect of one feature on <code>Grad.rate</code> is moderated by another feature. The problem with finding relevant interactions is that there are a lot of them (<span class="math inline">\({17\choose2}=136\)</span>). The lasso, however, is particularly suited for such a task.</p>
 <ol style="list-style-type: lower-alpha">
 <li>Obtain the model matrix of the model <code>Grad.Rate ~ .^2</code> for the training set (excluding the intercept), and cross-validate the lasso version of this model with <code>cv.glmnet()</code>. Save the the result as <code>cv_lasso2</code></li>
@@ -597,9 +594,6 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')

@@ -32,7 +32,6 @@ library(gridExtra)
 ---
 
 
-# Overview
 
 For this lab you need the packages `ISLR`, `ggplot2`, `glmnet`, `caret`, and `gridExtra`. 
 
@@ -62,7 +61,8 @@ College <- College %>%
 ```
 
 
-b. Since we are going fir tlinear models, we want the variable in the data to have approximately normal distributions. To visually check for skew and outliers, standardized all variables in the data set (first convert the dichotomous factor `Private` into a numeric variable), and display the boxplots of the standardized variables in a single plot array.
+b. Since we are going fit linear models, we want the variables in the data to have approximately normal distributions. To visually check for skew and outliers, standardize all variables in the data set (first convert the dichotomous factor `Private` into a numeric variable), and display the boxplots of the standardized variables in a single plot array.
+
 
 ```{r}
 College %>% 
@@ -75,7 +75,7 @@ College %>%
 ```
 
 
-c. Apply a normalizing log transformation to the variables with heavy right skew (for variables with left skew, first reverse the scores).  Make sure that before you transform the variables their minimum score is 1, in order to avoid taking the log of 0, which is infinite. For each transformed variable, visually check if the transformation had the desired normalizing effect. Check the boxplots of the transformed variables, and once you are satisfied about the result, save the resulting data (overwrite the previous version of `College`). 
+c. Apply a normalizing log transformation to the variables with heavy skew (for variables with left skew, first reverse the scores). Make sure that before you transform the variables their minimum score is 1, in order to avoid taking the log of 0, which is infinite. Display the boxplots of the transformed variables to check if the transformation had the desired effect, and then save the resulting data (overwrite the previous version of `College`). 
 
 ```{r}
 College <- College %>% 
@@ -116,7 +116,7 @@ train <- createDataPartition(y = College$Grad.Rate, p = .75, list = FALSE)
 
 ## Filter method
 
-Filter methods select a set of features before training the model. For these we will select features from the training set based on a minimum correlation with`Grad.Rate`. As selection criterion we use an absolute correlation larger than 0.3.
+Filter methods select a set of features before training the model. For these we will select features from the training set based on a minimum correlation with `Grad.Rate`. As selection criterion we use an absolute correlation larger than 0.3.
 
 a. Display the last column of the correlation matrix of the training set (the 18th column pertaining to outcome variable `Grad.Rate`). Which features satisfy the criterion?
 
@@ -124,14 +124,14 @@ a. Display the last column of the correlation matrix of the training set (the 18
 cor(College[train, ])[-18, 18] %>%  round(3) 
 ```
 
-b. As selection criterion we use an absolute correlation larger than 0.3. Make a character vector `vars` containing the names of the features that satisfy this criterion.
+b. Make a character vector `vars` containing the names of the features that satisfy our selection criterion.
 
 
 ```{r}
 vars <- which(abs(cor(College[train, ])[-18, 18]) > .3)
 ```
 
-c. Fit the linear model to the training data with the features that satisfy the selection criterion as predictors of `Grad.Rate`, and save the object as `train_filter`.
+c. Fit the linear model to the training data with the selected features as predictors of `Grad.Rate`, and save the object as `train_filter`.
 
 ```{r}
 train_filter <- lm(Grad.Rate ~ ., data = College[train, c(vars, 18)])
@@ -144,7 +144,7 @@ d. Display the summary of `train_filter`. Although all predictors have an absolu
 summary(train_filter)
 ```
 
-e. Obtain and save the predictions the test set
+e. Obtain and save the predictions for the test set
 
 ```{r}
 filter_pred <- predict(train_filter, newdata = College[-train, ])
@@ -231,7 +231,7 @@ cv_lasso <- cv.glmnet(x = as.matrix(College[train, -18]),
 ```
 
 
-d. Plot both `cv.gmnet`  objects, and interpret.
+d. Plot both `cv.glmnet`  objects, and interpret.
 
 ```{r}
 par(mfrow=c(1, 2))
@@ -246,7 +246,7 @@ round(cbind(coef(lm(Grad.Rate ~ . , College[train, ])), coef(cv_ridge), coef(cv_
 ```
 
 
-f. Obtain the predictions for the test set  - check the help page for `predict.cv.glmnet`() -  and compute and the test MSE's for the ridge and lasso.
+f. Obtain the predictions for the test set  - check the help page for `predict.cv.glmnet()` -  and compute and the test MSE's for the ridge and lasso.
  
 ```{r}
 pred_ridge <- predict(cv_ridge, newx = as.matrix(College[-train, -18]))
