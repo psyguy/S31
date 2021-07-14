@@ -3,7 +3,7 @@ title: "Lab 3B"
 subtitle: "Tree-based methods and SVM's"
 date: "`r format(Sys.time(), '%Y')`"
 params:
-  answers: false
+  answers: true
 urlcolor: blue
 output: 
   html_document:
@@ -12,12 +12,19 @@ output:
     number_sections: false
     theme: paper
     highlight: tango
-    codefolding: hide
-    pandocargs: --output=3B-Lab-Trees.html
+    code_folding: hide
+    pandoc_args: --output=3B-Lab-Trees-answers.html
 ---
 
 
-```{r setup, include=F, message=F}
+
+---
+
+
+
+In this lab we classify the `spam4` data again, but using different techniques than in the previous lab. For this lab you need the packages `kernlab`, `tree`, `randomForest`, `fastAdaboost`, `e1071` and `caret`. 
+
+```{r setup, message=F}
 knitr::opts_chunk$set(eval=params$answers, 
                       message=FALSE)
 library(kernlab)
@@ -31,19 +38,23 @@ library(dplyr)
 
 ---
 
-In this lab we classify the `spam` data again, but using different techniques than in the previous lab. For this lab you need the packages `kernlab`, `tree`, `randomForest`, `fastAdaboost`, `e1071` and `caret`. 
-
-
 # Training the models
 
-To compare our results, we use the same training and test set. However, we do not bother to transform the features before we start. Why is this not necessary? 
+To compare our results, we use the same training and test set.
 
-a. Make the same vector with indices for the training set as in the previous lab. 
+a. Load the `spam` data, and convert it to `spam4` as in the previous lab.
 
 ```{r}
-data(spam)
+data("spam")
+spam4 <- spam %>% 
+  mutate(across(1:57, ntile, 4))
+```
+
+b. Make the same vector with indices for the training set as in the previous lab. 
+
+```{r}
 set.seed(10) 
-train <- createDataPartition(y = spam$type, p = .75, list = FALSE)
+train <- createDataPartition(y = spam4$type, p = .75, list = FALSE)
 ```
 
 ## Tree
@@ -51,7 +62,7 @@ train <- createDataPartition(y = spam$type, p = .75, list = FALSE)
 a. Grow a tree on the training set. Save the object as `train_tree`, and plot it. 
 
 ```{r}
-train_tree <- tree(type ~ ., data = spam[train, ])
+train_tree <- tree(type ~ ., data = spam4[train, ])
 plot(train_tree)
 text(train_tree, cex = 0.8)
 ```
@@ -59,14 +70,15 @@ text(train_tree, cex = 0.8)
 b. The fitted may be overfitting. Before we can prune the tree we need to determine the optimal number of knots. Find out this number by performing cross-validation with the function `cv.tree()`.
 
 ```{r}
-cv.tree(train_tree)
+cv_tree <- cv.tree(train_tree)
+cv_tree
 ```
 
 
 d. Prune the tree using the optimal number of nodes from the cross-validation, and save the pruned tree object under an appropriate name.
 
 ```{r}
-prune_tree <- prune.tree(train_tree, best = 11)
+prune_tree <- prune.tree(train_tree, best = cv_tree$size[which.min(cv_tree$dev)])
 ```
 
 ## Bagging/random forest
@@ -75,14 +87,14 @@ Both models can be trained with the function `randomForest()`. The only argument
 
 a. Train the bagging model, save its object as `train_bag`, and display and interpret its content.
 
-```{r}
-(train_bag <- randomForest(type ~ ., spam[train, ], importance = TRUE, mtry = 57))
+```{r bag, cache=T}
+(train_bag <- randomForest(type ~ ., spam4[train, ], importance = TRUE, mtry = 57))
 ```
 
 b. Train the random forest model, save its object as `train_rf`, display its content and compare it to that of the random forest object.
 
-```{r}
-(train_rf  <- randomForest(type ~ ., spam[train, ], importance = TRUE))
+```{r rf, cache=T}
+(train_rf  <- randomForest(type ~ ., spam4[train, ], importance = TRUE))
 ```
 
 
@@ -96,17 +108,14 @@ varImpPlot(train_rf, n.var = 10)
 
 ## Boosting
 
-For boosting we use the function `adaboost()` (check out the help page for this function). The function has the hyperparameter `nIter`, which is the number of weak learners that will be used. Remember that too few learners might lead to underfitting, and too many to overfitting. So, we will have to determine the optimal value of `nIter` with cross-validation. If we use the function `train()` for this, we need to specify, aside  `formula` and `data`, the arguments `method = adaboost`,  `tuneGrid = "Adaboots.M1", nIter =  c(10, 25, 50))` and `trControl = trainControl(method = "cv", number = 5)`. Of course, you may also use different and/or more values for `nIter`. However, be aware that such changes may affect the computation time. 
-
+For boosting we use the `train()` function with the "adaboost" method for tuning the `nIter` hyperparameter (see lecture slides). 
  
-a. Apply the function `adaboost()` to the training set. Determine the value of `nIter` yourself (try out different values). Obtain the predictions for the test set, and display the misclassification error rate.
-
-b. Train the boosting model on the training set, and save the object under an appropriate name. 
+a. Run the code on the slides, and provide a sequence of numbers for tuning `nIter`. Save the `train` object under an appropriate name. 
 
 
 ```{r ada, cache=T}
 train_boost <- train(type ~ ., 
-                     data       = spam[train, ], 
+                     data       = spam4[train, ], 
                      method     = "adaboost",
                      tuneGrid   = expand.grid(method = "Adaboost.M1", nIter = c(10, 25, 50)),
                      trControl  = trainControl(method = "cv", 
@@ -114,7 +123,7 @@ train_boost <- train(type ~ .,
 )
 ```
 
-c. Display and interpret the fitted boosting object.
+b. Display and interpret the fitted object.
 
 ```{r}
 train_boost
@@ -122,13 +131,12 @@ train_boost
 
 ## Support Vector Machines 
 
-For training the support vector machine we the function `svm` of the package `e1071` (check its help page). Let's train an extremely flexible one with a radial kernel. This kernel has a hyperparameter `cost` for which the optimal value has to be determined with cross-validation. This is done with the function  `tune(method = svm, data = spam[train, ], kernel = "radial", ranges = list(cost = <sequence numbers>)`. The cost will be somewhere between 0 and 4. 
+a. The `svm()` function offers four different kernels and has many hyperparameters that can be tuned. To restrict the choices, use the function `tune("svm", . . .)` to tune the `cost` parameter for an svm with a radial kernel. The default value for `cost` is 1, so try out a sequence of values in that neighborhood. Save the `tune` object under an appropriate name.
 
-a. Tune an SVM with radial kernel by cross-validating `cost`. Specify an appropriate sequence of values for `cost` to be cross-validated (warning: do not make the sequence too long, because the cross-validation takes quite some time). Save the object, and display and interpret its summary. 
 
 ```{r radial, cache=T}
 train_svm  <- tune("svm", type ~ ., 
-                     data        = spam[train, ], 
+                     data        = spam4[train, ], 
                      kernel      = "radial",
                      probability = TRUE, 
                      ranges      = list(cost = c(1:4)))
@@ -137,35 +145,42 @@ summary(train_svm)
 ```
 
 
+b. Display the best model in the `tune` object.  
 ```{r}
 train_svm$best.model
 ```
 
-
-
-# Testing the models
-
-As in the previous labs, we now evaluate the models by looking at misclassification test error. 
-
-
-
-a. Use the function `predict()` to obtain the class predictions on the test set for the pruned tree and the bagging, random forest, boosting and svm models.
-
+c. Display a classification plot for two features of your own choice, and interpret.
 ```{r}
-class_tree  <- predict(prune_tree,           spam[-train, ], type = "class")
-
-class_bag   <- predict(train_bag,            spam[-train, ])
-
-class_rf    <- predict(train_rf,             spam[-train, ])
-
-class_boost <- predict(train_boost,          spam[-train, ])
-
-class_svm   <- predict(train_svm$best.model, spam[-train, ])
+plot(train_svm$best.model, spam4, telnet ~ charDollar)
 ```
 
 
+---
+
+# Testing the models
+
+As in the previous labs, evaluate the five models (pruned tree, bagging, random forest, boosting and svm) by comparing the misclassification test error rates. 
+
+
+a. Save the class predictions of the models on the test set.
+
 ```{r}
-cf <- function(obs = spam[-train, 58], est)table(obs = obs, est = est)
+class_tree  <- predict(prune_tree,           spam4[-train, ], type = "class")
+
+class_bag   <- predict(train_bag,            spam4[-train, ])
+
+class_rf    <- predict(train_rf,             spam4[-train, ])
+
+class_boost <- predict(train_boost,          spam4[-train, ])
+
+class_svm   <- predict(train_svm$best.model, spam4[-train, ])
+```
+
+b. Obtain and display the confusion matrices.
+
+```{r}
+cf <- function(obs = spam4[-train, 58], est)table(obs = obs, est = est)
 
 (conf_tree <- cf(est = class_tree))
 
@@ -179,6 +194,8 @@ cf <- function(obs = spam[-train, 58], est)table(obs = obs, est = est)
 
 ```
 
+c. Compute, display and compare the misclassification test errors for the five models. 
+
 ```{r}
 miscl <- function(x) 1 - sum(diag(x)) / sum(x)
 
@@ -190,4 +207,9 @@ data.frame(tree  = miscl(conf_tree),
   round(4) 
 ```
 
+d. Compare these test errors to those of the models in the previous lab. What do you conclude?
 
+
+---
+
+END OF LAB

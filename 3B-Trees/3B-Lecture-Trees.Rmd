@@ -16,7 +16,6 @@ knitr::opts_chunk$set(echo = FALSE, comment="", cache=T, size="footnotesize")
 library(MASS)
 library(ISLR)
 library(tree)
-library(rpart)
 library(randomForest)
 library(fastAdaboost)
 library(caret)
@@ -56,7 +55,7 @@ library(e1071)
 - deviance
 
 
-```{r fig.height=4, fig.cap = "Sale of car seats (yes or No)"}
+```{r fig.height=4, fig.cap = "Sale of car seats (Yes/No)"}
 tree.carseats  <- tree(factor(Sales < 7, labels = c("Yes", "No")) ~ CompPrice + Income + Advertising, Carseats)
 plot(tree.carseats)
 text(tree.carseats)
@@ -85,12 +84,12 @@ Algorithm is top-down and greedy, so
 
 ## Classification with trees or regression?
 
-- regression works best 
+Depends on nature of relationship between classes and features 
 
 
-![](pics/treeLinear.png){ width=250px}
+![](pics/treeLinear.png){width=250px}
 
-- trees  work best for B
+
 
 ## Package `tree`
 
@@ -98,10 +97,10 @@ Growing and plotting trees with function `tree()`
 
 \footnotesize
 ```{r echo=T, eval=F}
-train_tree <- tree(formula, data, split = c("deviance", "gini"))
+fit_tree <- tree(formula, data, split = c("deviance", "gini"))
                  
-plot(train_tree)
-text(train_tree)
+plot(fit_tree)
+text(fit_tree)
 ```
 \normalsize
 
@@ -121,6 +120,7 @@ $~$
 2. Bagging 
 
     - average predictions of bootstrapped trees
+
 $~$
 
 3. Random forests 
@@ -140,15 +140,27 @@ $~$
 
 
 
-## Cost-complexity pruning (package `tree)
+## Cost-complexity pruning (package `tree`)
 
+
+1. Cross-validate tree to find optimal number of nodes
+
+    - based on either deviance or misclassification error rate
+
+$~$
+
+2. Prune the tree with optimal number of nodes 
+
+    - number of nodes with smallest deviance/misclassification error rate
+
+$~$
+
+3. Get predictions of pruned tree on test set
+
+    - `predict.tree` returns either probabilities or classifications
+
+$~$
 \footnotesize 
-
-1. Cross-validate the tree 
-
-2. Shows deviance/misclassification as function of nodes
-
-3. Obtain predictions test set 
 
 ```{r echo=T, eval=F}
 cv.tree(fit_tree, method = c("deviance", "misclass"))
@@ -159,11 +171,6 @@ predict(pruned_tree, newdata, type = "class")
 ```
 
 
-- `cv.tree()` deviance/misclassification as function number of nodes
-
-- `best` in `prune.tree()` is optimal number of nodes  in `cv.tree()`
-
-- default `type` yields predicted probabilities
 
 
 ## Pruning example
@@ -268,7 +275,7 @@ varImpPlot(pima.bag, main="")
 ## Package `randomForest`
 
 
-Training and prediction with bagging/random forest
+Functions for bagging/random forest
 
 \footnotesize
 
@@ -284,11 +291,13 @@ predict(fit, newdata, type = "prob")
 
 ```
 
+\normalsize
+
 - `mtry`: default random forest (bagging total number predictors)
 
 - `ntree` is tuning parameter (overfitting when too large)
 
-- `importance = TRUE` necessary for `varImpPlot()`
+- `importance = TRUE`  for `varImpPlot()`
 
 - default `type` yields predicted class
 
@@ -325,18 +334,24 @@ ada <- adaboost(formula, data, nIter)
 predict(ada, newdata)
 ```
 
-- `nIter` is tuning parameter (overfitting when too large)
+- `nIter` is number of weak classifiers (overfitting when too large)
 
 - predictions include classes, probabilities and misclassification error
 
 ## Boosting with package `caret` 
 
-Determine `nIter` with cross validation (`caret`)
+Determine `nIter` with cross validation 
+
+- use the method `adaboost` in the function `train()` 
+
+- specify a sequence of values for `nIter`
+
 
 \footnotesize
 
 ```{r echo=T, eval = F}
-ada <- train(formula, data, 
+ada <- train(formula, 
+             data, 
              method    = "adaboost", 
              trControl = trainControl(method = "cv", number = 5),
              tuneGrid  = expand.grid(method = "Adaboost.M1",
@@ -344,6 +359,8 @@ ada <- train(formula, data,
 
 predict(ada, newdata, type = "prob")
 ```
+
+\normalsize
 
 - "Adaboost.M1" restricts search to one of two methods
 
@@ -428,7 +445,11 @@ knitr::include_graphics("pics/softmargin.png")
 
 ## Support Vector Machines (SVM)
 
-Allows for nonlinear hyperplanes, e.g. polynomial and radial 
+Kernels allow for nonlinear hyperplanes, e.g.
+
+- polynomial kernel (left)
+
+- radial kernel (right)
 
 
 ```{r echo=F,  out.width="90%", fig.align = "center"}
@@ -437,8 +458,6 @@ knitr::include_graphics("pics/kernel.png")
 
 ##  SVM with pacakge `e1071`
 
-
-Training and prediction
 
 \footnotesize
 
@@ -456,6 +475,7 @@ svm_class <- predict(svm_train, newdata, probability = TRUE)
 svm_prob  <- attr(svm_class, "probabilities")
 ```
 
+\normalsize
 
 - `cost`, `degree` and `coef0` are tuning parameters 
 

@@ -12,6 +12,12 @@ output:
 ---
 
 
+
+---
+
+
+In this lab we classify the `spam4` data again, but using different techniques than in the previous lab. For this lab you need the packages `kernlab`, `tree`, `randomForest`, `fastAdaboost`, `e1071` and `caret`. 
+
 ```{r setup, include=F, message=F}
 knitr::opts_chunk$set(message=FALSE)
 library(kernlab)
@@ -25,18 +31,22 @@ library(dplyr)
 
 ---
 
-In this lab we classify the `spam` data again, but using different techniques than in the previous lab. For this lab you need the packages `kernlab`, `tree`, `randomForest`, `fastAdaboost`, `e1071` and `caret`. 
-
-
 # Training the models
 
 To compare our results, we use the same training and test set. However, we do not bother to transform the features before we start. Why is this not necessary? 
 
-a. Make the same vector with indices for the training set as in the previous lab. 
+a. Load the `spam` data.
 
 ```{r}
 
 ```
+
+b. Make the same vector with indices for the training set as in the previous lab. 
+
+```{r}
+
+```
+
 
 ## Tree
 
@@ -85,19 +95,15 @@ c. Display the variable importance plots of both objects for the 10 most importa
 
 ## Boosting
 
-For boosting we use the function `adaboost()` (check out the help page for this function). The function has the hyperparameter `nIter`, which is the number of weak learners that will be used. Remember that too few learners might lead to underfitting, and too many to overfitting. So, we will have to determine the optimal value of `nIter` with cross-validation. If we use the function `train()` for this, we need to specify, aside  `formula` and `data`, the arguments `method = adaboost`,  `tuneGrid = "Adaboots.M1", nIter =  c(10, 25, 50))` and `trControl = trainControl(method = "cv", number = 5)`. Of course, you may also use different and/or more values for `nIter`. However, be aware that such changes may affect the computation time. 
-
- 
-a. Apply the function `adaboost()` to the training set. Determine the value of `nIter` yourself (try out different values). Obtain the predictions for the test set, and display the misclassification error rate.
-
-b. Train the boosting model on the training set, and save the object under an appropriate name. 
+a. Run the code on the slides, and provide a sequence of numbers for tuning `nIter`. Save the `train` object under an appropriate name. 
 
 
-```{r ada}
+
+```{r}
 
 ```
 
-c. Display and interpret the fitted boosting object.
+b. Display and interpret the fitted object.
 
 ```{r}
 
@@ -105,13 +111,7 @@ c. Display and interpret the fitted boosting object.
 
 ## Support Vector Machines 
 
-For training the support vector machine we the function `svm` of the package `e1071` (check its help page). Let's train an extremely flexible one with a radial kernel. This kernel has a hyperparameter `cost` for which the optimal value has to be determined with cross-validation. This is done with the function  `tune(method = svm, data = spam[train, ], kernel = "radial", ranges = list(cost = <sequence numbers>)`. The cost will be somewhere between 0 and 4. 
-
-a. Tune an SVM with radial kernel by cross-validating `cost`. Specify an appropriate sequence of values for `cost` to be cross-validated (warning: do not make the sequence too long, because the cross-validation takes quite some time). Save the object, and display and interpret its summary. 
-
-```{r radial}
-
-```
+a. The `svm()` function offers four different kernels and has many hyperparameters that can be tuned. To restrict the choices, use the function `tune("svm", . . .)` to tune the `cost` parameter for an svm with a radial kernel. The default value for `cost` is 1, so try out a sequence of values in that neighborhood. Save the `tune` object under an appropriate name.
 
 
 ```{r}
@@ -119,26 +119,47 @@ a. Tune an SVM with radial kernel by cross-validating `cost`. Specify an appropr
 ```
 
 
+b. Display the best model in the `tune` object. 
+
+```{r}
+
+```
+
+c. Display a classification plot for two features of your own choice, and interpret.
+
+```{r}
+
+```
+
+---
 
 # Testing the models
 
-As in the previous labs, we now evaluate the models by looking at misclassification test error. 
+As in the previous labs, evaluate the five models (pruned tree, bagging, random forest, boosting and svm) by comparing the misclassification test error rates. 
 
 
-
-a. Use the function `predict()` to obtain the class predictions on the test set for the pruned tree and the bagging, random forest, boosting and svm models.
-
-```{r}
-
-```
-
+a. Save the class predictions of the models on the test set.
 
 ```{r}
 
 ```
 
+b. Obtain and display the confusion matrices.
+
 ```{r}
 
 ```
 
+c. Compute, display and compare the misclassification test errors for the five models. 
+
+```{r}
+
+```
+
+d. Compare these test errors to those of the models in the previous lab. What do you conclude?
+
+
+---
+
+END OF LAB
 
