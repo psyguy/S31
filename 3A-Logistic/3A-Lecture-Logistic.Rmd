@@ -41,7 +41,7 @@ $~$
 
 These questions involve the prediction of a class and not of a score.
 
-The linear models is unsuited for this purpose, but what is? 
+The linear model is unsuited for this purpose, but what is? 
 
 ## Content
 
@@ -63,7 +63,7 @@ $~$
 
 Estimation 
 
-1. Estimate $P(class = j| X)$
+1. Estimate $P(class = j\mid  features)$
 
 2. Assign observation to class with largest probability 
 
@@ -80,41 +80,51 @@ Models (in order of interpretability)
 
 ## Binary logistic regression (BLR)
 
-BLR predicts probability of a "success" with the logistic function
+Model to predict probability that $Y$ is a "success" 
 
-
-
-$$P(Y=\text{success})=\frac{e^{\beta_0+\beta_1x_1+\dots}}{1+e^{\beta_0+\beta_1x_1+\dots}}=\frac{1}{1+e^{-(\beta_0+\beta_1x_1+\dots)}}$$
-
+$$\mbox{logit}(success)=\beta_0+\beta_1x_1+\dots$$
 
 $~$
 
+$$odds(success)=e^{\beta_0+\beta_1x_1+\dots}$$
 
-- $Y$ is coded as "1 = success" and "0 = failure"
+$~$
+
+$$P(success)=\frac{e^{\beta_0+\beta_1x_1+\dots}}{1+e^{\beta_0+\beta_1x_1+\dots}}=\frac{1}{1+e^{-(\beta_0+\beta_1x_1+\dots)}}$$
 
 
-- logistic (sigmoid) function ensures $\hat{P}(Y)\in(0,1)$ 
 
 
 ## Logistic vs linear regression
+
+- estimates of logistic model in interval (0, 1) 
+
+- estimates of linear model are not probabilities
 
 ```{r echo=F, out.width="100%", fig.align='center'}
 knitr::include_graphics("pics/Lin_vs_LogReg.png")
 ```
 
-## Reparametrizations 
+## Link function 
 
-Logistic model is _generalized linear model_ with link function
+Logistic model is a _generalized linear model_ with the logit link function
 
 
-$$\text{logit}(Y)=\beta_0+\beta_1x_1+\dots+\beta_kx_k$$
+$$\text{logit}(success)=\beta_0+\beta_1x_1+\dots+\beta_kx_k$$
 $~$
 
-The "logit" is the log of the odds, so that
+The "logit" is the log of the odds, so that after exponentiation
 
-$$\text{odds}(Y)=\frac{P(Y)}{1-P(Y)}=e^{\beta_0+\beta_1x_1+\dots+\beta_kx_k}$$
+$$odds(success)=e^{\beta_0+\beta_1x_1+\dots+\beta_kx_k}$$
+$~$
+
+and the relationship between odds and probabilities is
+
+$$P(success)=\frac{odds(success)}{1+odds(success)}$$
 
 ## Classification procedure in R
+
+Conversion of estimated probabilities into classifications
 
 \footnotesize
 ```{r echo=T, eval=F}
@@ -160,9 +170,8 @@ Probability estimates and classifications of first 10 cases:
 ```{r echo=T}
 p <- predict(pima_glm, Pima.te, type = "response")
 data.frame(
-  probability    =            p[1:10],
-  classification = as.numeric(p[1:10] > .5)
-) %>% round(3) 
+  probability    = round(p[1:10], 3),
+  classification = factor(p[1:10] > .5, labels = c("no diabetes", "diabetes"))) 
 ```
 
 ## Pros and cons
@@ -181,28 +190,24 @@ Cons
 
     - large number of predictors
     
-    - factor interactions with (almost) empty cells 
+    - predictors with rare categories 
     
-    - perfect separation
 
 # Discriminant Analysis 
 
 
 ## What's discriminant analysis
 
-Separates classes based on discriminant functions
+Separates classes based on $k$ discriminant functions
 
-- directions in feature space that best separate between classes
+- $k$ directions in feature space that best separate between classes
 
-- number of functions is min$(J-1, p-1)$
+- $k = \mbox{min}(\# classes-1, \# features-1)$
 
-    - $J$ is number of classes
-    
-    - $p$ is number of features
+$~$
 
-
-```{r echo=F, out.width="25%", fig.align='center'}
-knitr::include_graphics("pics/LDA.png")
+```{r echo=F, out.width="50%", fig.align='center'}
+knitr::include_graphics("pics/discriminant.png")
 ```
 
 
@@ -211,7 +216,7 @@ knitr::include_graphics("pics/LDA.png")
 ## Linear Discriminant Analysis (LDA)
 
 
-1. Estimate _posterior_ probability $P(X=x|Y=j)$ of class $j=1,\dots,J$ 
+Estimate _posterior_ probability $P(X=x|Y=j)$ of class $j=1,\dots,J$ 
   
 $$P(Y=j|X=x)=\frac{\pi_jP(X=x|Y=j)}{\sum_{k=1}^J\pi_kP(X=x|Y=k)}$$  
 
@@ -219,18 +224,11 @@ $$P(Y=j|X=x)=\frac{\pi_jP(X=x|Y=j)}{\sum_{k=1}^J\pi_kP(X=x|Y=k)}$$
 
 $~$
 
-2. Use Bayes Theorem to find $P(Y=j|X=x)$ 
-
-
-$~$
-
-3. Assign $x$ to class $j$ with highest posterior probability
+- $\pi_j$ is _prior probability_ of class $j$ (sample proportion) 
 
 $~$
 
-- $\pi_j$ is _posterior probability_ class $j$ (estimated by sample proportion) 
-
-- $P(X=x|Y=j)$ estimated by conditional sample means
+- $P(X=x|Y=j)$ are sample means of $X$ within classes of $Y$
 
 ## Linear discriminant functions
 
@@ -257,7 +255,7 @@ Assumption $X|Y\sim{N(\boldsymbol\mu}, \boldsymbol\Sigma)$
 
 Estimates covariance matrix $\boldsymbol\Sigma_j$ for each class, with
 
-- quadratic dicriminant functions
+- quadratic discriminant functions
 
 - more parameters, so less bias but higher variance
 
@@ -272,15 +270,17 @@ knitr::include_graphics("pics/quad.png")
 
 Functions `lda()` and `qda()` of base R package `MASS`
 
-- for LDA:
+- for LDA (for QDA it works the same):
 
+$~$
 
+\footnotesize
 ```{r echo=T, eval=F}
 fit_lda   <- lda(formula, data = <data>)
 
 pred_lda  <- predict(fit_lda, newdata = <data>)
 
-prob_lda  <- pred-lda$posterior
+prob_lda  <- pred_lda$posterior
 
 class_lda  <- pred_lda$class
 ```
@@ -293,15 +293,27 @@ class_lda  <- pred_lda$class
 pima_lda <- lda(type ~ ., Pima.te)
 ```
 
+- prior probabilities  $\pi$
+
+```{r echo=T}
+pima_lda$prior %>% round(3)
+```
+
+
+
+- conditional means $P(X=x|Y=j)$
 
 ```{r echo=T}
 pima_lda$means %>% round(1)
 ```
 
 
+## Linear discriminant function and projections
 
-```{r echo=T}
-pima_lda$scaling %>% round(4)
+\footnotesize
+```{r}
+pima_lda$scaling %>% round(4) %>% t()
+plot(pima_lda)
 ```
 
 
@@ -366,7 +378,7 @@ d. ROC curve
 
     + sensitivity and specificity for sequence of cut-off values
 
-    + Area Under Curve (AUC) (the higher, the better)
+    + Area Under Curve (AUC) (50% is guessing, 100% is perfect)
 
 
 ## Deviance and AIC
@@ -424,12 +436,12 @@ knitr::include_graphics("pics/ROC.jpg")
 
 \footnotesize
 ```{r echo=T, eval = FALSE}
-fit_cv <- train(formula   = y ~ ., 
+fit_cv <- train(type ~ ., 
                 data      = Pima.te, 
-                method    = c("glm", "lda", "qda"), #pick one
+                method    = "glm", 
                 metric    = "Accuracy",
                 trControl = trainControl(method = "cv", 
-                                         number = 5)))
+                                         number = 5))
 ```
 \normalsize
 

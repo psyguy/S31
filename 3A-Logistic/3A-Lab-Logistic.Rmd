@@ -35,9 +35,7 @@ library(pROC)
 
 
 
-The variable `type` of the data set `kernlab::spam` with 4601 e-mails, of which a part is `spam`. 
-
-In this lab we train models to classify emails as either spam or non-spam based 57 features of the email. We compare the results of logistic regression with or without regularization, and of linear and quadratic discriminant analyses.
+In this lab you train models to classify emails as either spam or non-spam based 57 features of the email. The data set for this lab is `spam` from the package `kernlab`. The variable `type` contains the classifications.
 
 
 # Data exploration
@@ -49,14 +47,14 @@ library(kernlab)
 data("spam")
 ```
 
-b. Display a summary of the features after standardization (so exclude `type`). Compare the minimum and maximum *z*-scores of the variables. Optionally, also display the boxplots of the standardized features. What does these statistics (and plots) tell you about the distributions of the variables?
+b. Display the boxplots of the standardized features (so exclude `type`). What does these plots tell you about the distributions of the features?
 
 
 ```{r}
-summary(scale(spam[, -58]))
+boxplot(scale(spam[, -58]), cex = .3, las = 2)
 ```
 
-c. To avoid huge outliers, cut the scores of all 57 features into 4 approximately equal parts (TIP: use  `mutate(across(1:57, ntile, 4)`. Save the new data set as `spam4`.
+c. To avoid outliers, cut the scores of all 57 features into 4 approximately equal parts. Save the new data set as `spam4`.
 
 
 ```{r}
@@ -93,7 +91,7 @@ a. Fit the logistic regression model with all 57 features to the training set, a
 train_glm <- glm(type ~ . , family = "binomial", data = spam4[train, ])
 ```
 
-The warning  `glm.fit: fitted probabilities numerically 0 or 1 occurred` implies that some probability estimates are on the boundary, and that some features have extreme parameter estimates and standard errors.
+The warning  `glm.fit: fitted probabilities numerically 0 or 1 occurred` implies that one or more features have extreme parameter estimates and standard errors.
 
 b. Display the parameter estimates and with `coef(summary(train_glm))`, rounded to two decimals, and identify the features with extreme parameters estimates and standard errors.  
 
@@ -103,17 +101,23 @@ round(coef(summary(train_glm)), 2)
 
 ## Lasso and ridge regression
 
-To avoid such extreme estimates, we can performs logistic regression with a ridge and lasso shrinkage. The function `glmnet()` does this with the arguments `family = "binomial"` and  `alpha = 1` for the lasso and `alpha = 0` for the ridge. Do not forget that the argument `x` for the predictors requires an object of class `matrix`. 
+Shrinkage avoids extremely large parameter estimates. The function `glmnet()` performs both lasso   and ridge regression. 
 
-a. Train the model with both the lasso and the ridge penalty and save the objects as `train_lasso` and `train_ridge`. 
+a. Train the logistic regression model with the lasso and the ridge. Do not forget that argument `x` requires a `matrix` as input, and to set the `familiy` to `"binomial"`. Save the objects as `train_lasso` and `train_ridge`.
 
 
 ```{r}
-train_lasso <- glmnet(x = as.matrix(spam4[train, -58]), y = spam4[train, 58], family = "binomial")
-train_ridge <- glmnet(x = as.matrix(spam4[train, -58]), y = spam4[train, 58], family = "binomial", alpha = 0)
+train_lasso <- glmnet(x = as.matrix(spam4[train, -58]), 
+                      y = spam4[train, 58], 
+                      family = "binomial")
+
+train_ridge <- glmnet(x = as.matrix(spam4[train, -58]), 
+                      y = spam4[train, 58], 
+                      family = "binomial", 
+                      alpha = 0)
 ```
 
-b. Plot both objects with the arguments `label = TRUE`and `xvar = "lambda"`. Which coefficients are most affected by the shrinkage. 
+b. Plot both objects with the arguments `label = TRUE` and `xvar = "lambda"`. Which coefficients are most affected by the shrinkage. 
 
 ```{r}
 plot(train_lasso, label = TRUE, xvar="lambda")
@@ -121,7 +125,7 @@ plot(train_ridge, label = TRUE, xvar="lambda")
 ```
 
 
-c. To determine the optimal value for the shrinkage parameter `lambda`, perform a 5-fold cross-validation on the both objects. Save the objects as `train_cv.lasso` and `train_cv.ridge`.  
+c. Perform a 5-fold cross-validation to determine the optimal value for the shrinkage parameters `lambda` with `cv.glmnet()`. Save the objects as `train_cv.lasso` and `train_cv.ridge`.  
 
 ```{r}
 set.seed(1)
@@ -137,14 +141,14 @@ train_cv.ridge <- cv.glmnet(x = as.matrix(spam4[train, -58]),
 ```
 
 
-d. Plot the object `train_cv.lasso` and `train_cv.lasso`, and interpret the plots. 
+d. Plot the objects `train_cv.lasso` and `train_cv.lasso`, and interpret the plots. 
 
 ```{r}
 plot(train_cv.lasso)
 plot(train_cv.ridge)
 ```
 
-e. Display the parameter estimates of `train_glm` and `spam.cv.lasso` and `spam.cv.ridge` side-by-side with the fucntion `cbind()`, rounded to two decimals.
+e. Display the parameter estimates of `train_glm`, `spam.cv.lasso` and `spam.cv.ridge` side-by-side with the function `cbind()`, rounded to two decimals. 
 
 ```{r}
 round(
@@ -158,17 +162,20 @@ round(
 ## LDA
 
 
-a. Perform a linear and quadratic discriminant analysis on the `spam4` data. Save the fitted objects under an appropriate name (e.g. `train_lda` and `train_qda`), and display and interpret their content. 
+a. Perform a linear and quadratic discriminant analysis on the `spam4` data. Save the fitted objects under an appropriate name (e.g. `train_lda` and `train_qda`). 
 
 ```{r}
 train_lda <- lda(x = spam4[train, -58], grouping = spam4[train, 58])
-train_lda
 train_qda <- qda(x = spam4[train, -58], grouping = spam4[train, 58])
+```
+
+b. Display and interpret the content of the `lda` and `qda` object. 
+```{r}
+train_lda
 train_qda
 ```
 
-
-b. Plot the fitted LDA object, and interpret its meaning. 
+c. Plot the fitted LDA object, and interpret its meaning. 
 
 ```{r}
 plot(train_lda)
@@ -176,7 +183,9 @@ plot(train_lda)
 
 # Model testing
 
-a. Use the function `predict()` to get the predictions of the three logistic models and the two discriminant analyses on the test set. Use the argument `type = "response"` for the logistic models. Save the objects under an appropriate name (e.g. `pred_glm`, `pred_lasso`, etc.).
+It is time to compare the performance of the three logistic models and the two discriminant analyses on the test set.
+
+a. Save the predictions of these models on the test set with the function `predict()`. Check the help files for `predict.glm`, `predict.lda` and `predict.qda` for the arguments. Save the objects under  appropriate names (e.g. `pred_glm`, `pred_lasso`, etc.).
 
 
 ```{r}
@@ -200,7 +209,7 @@ pred_qda    <- predict(train_qda, spam4[-train, -58])
 ```
 
 
-b. Check the content of the predicted objects, and for each model compute or extract a factor with the predicted  classifications "nospam" and "spam". Save these under an appropriate name (e.g. `class_glm`, `class_lasso`, etc.).
+b. Check the content of the predicted objects, and either compute or extract the factor with the predicted  classifications "nospam" and "spam". Save these factors under appropriate names (e.g. `class_glm`, `class_lasso`, etc.).
 
 ```{r}
 class_glm   <- factor(pred_glm > .5, 
@@ -218,36 +227,30 @@ class_qda   <- pred_qda$class
 ```
 
 
-c. Display the confusion matrices of the three logistic and two discriminant models, and save them under an appropriate names. 
+c. Display the confusion matrices of the five models, and save them under appropriate names. 
 
 ```{r}
-(conf_glm   <- table(observed  = spam4$type[-train], 
-                   predicted = class_glm))
+conf <- function(est) table(obs = spam4$type[-train], est = est)
 
-(conf_lasso <- table(observed  = spam4[-train, 58], 
-                       predicted = class_lasso))
+(conf_glm   <- conf(class_glm))
 
-(conf_ridge <- table(observed  = spam4[-train, 58], 
-                       predicted = class_ridge))
+(conf_lasso <- conf(class_lasso))
 
-(conf_lda   <- table(observed  = spam4[-train, 58], 
-                     predicted = class_lda))
+(conf_ridge <- conf(class_ridge))
 
-(conf_qda   <- table(observed  = spam4[-train, 58], 
-                     predicted = class_qda))
+(conf_lda   <- conf(class_lda))
+
+(conf_qda   <- conf(class_qda))
 
 ```
 
 
 
-d. Compute and display the misclassification test error rates of the five models (to compute these, copy-paste and run the function `miscl <- function(x) 1  - sum(diag(x)) / sum(x)`, and then fill in the name of the model's confusion matrix at `x`).
+d. Compute and display the misclassification test error rates of the five models.
 
 ```{r}
 miscl <- function(x) 1 - sum(diag(x)) / sum(x)
-```
 
-
-```{r}
 data.frame(glm   = miscl(conf_glm),
            lasso = miscl(conf_lasso),
            ridge = miscl(conf_ridge),
@@ -256,7 +259,13 @@ data.frame(glm   = miscl(conf_glm),
   round(4) 
 ```
 
-e. In one figure, display the ROC curves (in different colors) for the test set with the predicted probabilities i) generated by the random variable `runif(1150)`, ii) of the lasso model and iii) of the QDA. Interpret the plots.
+e. In one figure, display and interpret the ROC curves (in different colors) for the predicted probabilities of
+
+    - the random variable `runif(1150)`
+    
+    - the lasso model 
+    
+    - the QDA. 
 
 ```{r}
 plot(roc(spam4[-train, 58], runif(1150)))
@@ -264,3 +273,6 @@ plot(roc(spam4[-train, 58], pred_glm), add = T, col="blue")
 plot(roc(spam4[-train, 58], pred_qda$posterior[, 2]), add = T, col="red")
 ```
 
+---
+
+END OF LAB

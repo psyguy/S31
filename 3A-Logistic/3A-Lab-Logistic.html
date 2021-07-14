@@ -352,8 +352,7 @@ div.tocify {
 
 
 <hr />
-<p>The variable <code>type</code> of the data set <code>kernlab::spam</code> with 4601 e-mails, of which a part is <code>spam</code>.</p>
-<p>In this lab we train models to classify emails as either spam or non-spam based 57 features of the email. We compare the results of logistic regression with or without regularization, and of linear and quadratic discriminant analyses.</p>
+<p>In this lab you train models to classify emails as either spam or non-spam based 57 features of the email. The data set for this lab is <code>spam</code> from the package <code>kernlab</code>. The variable <code>type</code> contains the classifications.</p>
 <div id="data-exploration" class="section level1">
 <h1>Data exploration</h1>
 <ol style="list-style-type: lower-alpha">
@@ -362,11 +361,11 @@ div.tocify {
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kernlab)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;spam&quot;</span>)</span></code></pre></div>
 <ol start="2" style="list-style-type: lower-alpha">
-<li>Display a summary of the features after standardization (so exclude <code>type</code>). Compare the minimum and maximum <em>z</em>-scores of the variables. Optionally, also display the boxplots of the standardized features. What does these statistics (and plots) tell you about the distributions of the variables?</li>
+<li>Display the boxplots of the standardized features (so exclude <code>type</code>). What does these plots tell you about the distributions of the features?</li>
 </ol>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">scale</span>(spam[, <span class="sc">-</span><span class="dv">58</span>]))</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(<span class="fu">scale</span>(spam[, <span class="sc">-</span><span class="dv">58</span>]), <span class="at">cex =</span> .<span class="dv">3</span>, <span class="at">las =</span> <span class="dv">2</span>)</span></code></pre></div>
 <ol start="3" style="list-style-type: lower-alpha">
-<li>To avoid huge outliers, cut the scores of all 57 features into 4 approximately equal parts (TIP: use <code>mutate(across(1:57, ntile, 4)</code>. Save the new data set as <code>spam4</code>.</li>
+<li>To avoid outliers, cut the scores of all 57 features into 4 approximately equal parts. Save the new data set as <code>spam4</code>.</li>
 </ol>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>spam4 <span class="ot">&lt;-</span> spam <span class="sc">%&gt;%</span> </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">57</span>, ntile, <span class="dv">4</span>))</span></code></pre></div>
@@ -390,7 +389,7 @@ div.tocify {
 <li>Fit the logistic regression model with all 57 features to the training set, and save the object as <code>train_glm</code>.</li>
 </ol>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>train_glm <span class="ot">&lt;-</span> <span class="fu">glm</span>(type <span class="sc">~</span> . , <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="at">data =</span> spam4[train, ])</span></code></pre></div>
-<p>The warning <code>glm.fit: fitted probabilities numerically 0 or 1 occurred</code> implies that some probability estimates are on the boundary, and that some features have extreme parameter estimates and standard errors.</p>
+<p>The warning <code>glm.fit: fitted probabilities numerically 0 or 1 occurred</code> implies that one or more features have extreme parameter estimates and standard errors.</p>
 <ol start="2" style="list-style-type: lower-alpha">
 <li>Display the parameter estimates and with <code>coef(summary(train_glm))</code>, rounded to two decimals, and identify the features with extreme parameters estimates and standard errors.</li>
 </ol>
@@ -398,19 +397,25 @@ div.tocify {
 </div>
 <div id="lasso-and-ridge-regression" class="section level2">
 <h2>Lasso and ridge regression</h2>
-<p>To avoid such extreme estimates, we can performs logistic regression with a ridge and lasso shrinkage. The function <code>glmnet()</code> does this with the arguments <code>family = &quot;binomial&quot;</code> and <code>alpha = 1</code> for the lasso and <code>alpha = 0</code> for the ridge. Do not forget that the argument <code>x</code> for the predictors requires an object of class <code>matrix</code>.</p>
+<p>Shrinkage avoids extremely large parameter estimates. The function <code>glmnet()</code> performs both lasso and ridge regression.</p>
 <ol style="list-style-type: lower-alpha">
-<li>Train the model with both the lasso and the ridge penalty and save the objects as <code>train_lasso</code> and <code>train_ridge</code>.</li>
+<li>Train the logistic regression model with the lasso and the ridge. Do not forget that argument <code>x</code> requires a <code>matrix</code> as input, and to set the <code>familiy</code> to <code>&quot;binomial&quot;</code>. Save the objects as <code>train_lasso</code> and <code>train_ridge</code>.</li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>train_lasso <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(<span class="at">x =</span> <span class="fu">as.matrix</span>(spam4[train, <span class="sc">-</span><span class="dv">58</span>]), <span class="at">y =</span> spam4[train, <span class="dv">58</span>], <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>train_ridge <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(<span class="at">x =</span> <span class="fu">as.matrix</span>(spam4[train, <span class="sc">-</span><span class="dv">58</span>]), <span class="at">y =</span> spam4[train, <span class="dv">58</span>], <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="at">alpha =</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>train_lasso <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(<span class="at">x =</span> <span class="fu">as.matrix</span>(spam4[train, <span class="sc">-</span><span class="dv">58</span>]), </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> spam4[train, <span class="dv">58</span>], </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>train_ridge <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(<span class="at">x =</span> <span class="fu">as.matrix</span>(spam4[train, <span class="sc">-</span><span class="dv">58</span>]), </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> spam4[train, <span class="dv">58</span>], </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>, </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">alpha =</span> <span class="dv">0</span>)</span></code></pre></div>
 <ol start="2" style="list-style-type: lower-alpha">
-<li>Plot both objects with the arguments <code>label = TRUE</code>and <code>xvar = &quot;lambda&quot;</code>. Which coefficients are most affected by the shrinkage.</li>
+<li>Plot both objects with the arguments <code>label = TRUE</code> and <code>xvar = &quot;lambda&quot;</code>. Which coefficients are most affected by the shrinkage.</li>
 </ol>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(train_lasso, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">xvar=</span><span class="st">&quot;lambda&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(train_ridge, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">xvar=</span><span class="st">&quot;lambda&quot;</span>)</span></code></pre></div>
 <ol start="3" style="list-style-type: lower-alpha">
-<li>To determine the optimal value for the shrinkage parameter <code>lambda</code>, perform a 5-fold cross-validation on the both objects. Save the objects as <code>train_cv.lasso</code> and <code>train_cv.ridge</code>.</li>
+<li>Perform a 5-fold cross-validation to determine the optimal value for the shrinkage parameters <code>lambda</code> with <code>cv.glmnet()</code>. Save the objects as <code>train_cv.lasso</code> and <code>train_cv.ridge</code>.</li>
 </ol>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>train_cv.lasso <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(<span class="at">x =</span> <span class="fu">as.matrix</span>(spam4[train, <span class="sc">-</span><span class="dv">58</span>]), </span>
@@ -423,12 +428,12 @@ div.tocify {
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">nfolds =</span> <span class="dv">5</span>,</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">alpha =</span> <span class="dv">0</span>)</span></code></pre></div>
 <ol start="4" style="list-style-type: lower-alpha">
-<li>Plot the object <code>train_cv.lasso</code> and <code>train_cv.lasso</code>, and interpret the plots.</li>
+<li>Plot the objects <code>train_cv.lasso</code> and <code>train_cv.lasso</code>, and interpret the plots.</li>
 </ol>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(train_cv.lasso)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(train_cv.ridge)</span></code></pre></div>
 <ol start="5" style="list-style-type: lower-alpha">
-<li>Display the parameter estimates of <code>train_glm</code> and <code>spam.cv.lasso</code> and <code>spam.cv.ridge</code> side-by-side with the fucntion <code>cbind()</code>, rounded to two decimals.</li>
+<li>Display the parameter estimates of <code>train_glm</code>, <code>spam.cv.lasso</code> and <code>spam.cv.ridge</code> side-by-side with the function <code>cbind()</code>, rounded to two decimals.</li>
 </ol>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(</span>
@@ -440,87 +445,96 @@ div.tocify {
 <div id="lda" class="section level2">
 <h2>LDA</h2>
 <ol style="list-style-type: lower-alpha">
-<li>Perform a linear and quadratic discriminant analysis on the <code>spam4</code> data. Save the fitted objects under an appropriate name (e.g. <code>train_lda</code> and <code>train_qda</code>), and display and interpret their content.</li>
+<li>Perform a linear and quadratic discriminant analysis on the <code>spam4</code> data. Save the fitted objects under an appropriate name (e.g. <code>train_lda</code> and <code>train_qda</code>).</li>
 </ol>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>train_lda <span class="ot">&lt;-</span> <span class="fu">lda</span>(<span class="at">x =</span> spam4[train, <span class="sc">-</span><span class="dv">58</span>], <span class="at">grouping =</span> spam4[train, <span class="dv">58</span>])</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>train_lda</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>train_qda <span class="ot">&lt;-</span> <span class="fu">qda</span>(<span class="at">x =</span> spam4[train, <span class="sc">-</span><span class="dv">58</span>], <span class="at">grouping =</span> spam4[train, <span class="dv">58</span>])</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>train_qda</span></code></pre></div>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>train_qda <span class="ot">&lt;-</span> <span class="fu">qda</span>(<span class="at">x =</span> spam4[train, <span class="sc">-</span><span class="dv">58</span>], <span class="at">grouping =</span> spam4[train, <span class="dv">58</span>])</span></code></pre></div>
 <ol start="2" style="list-style-type: lower-alpha">
+<li>Display and interpret the content of the <code>lda</code> and <code>qda</code> object.</li>
+</ol>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>train_lda</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>train_qda</span></code></pre></div>
+<ol start="3" style="list-style-type: lower-alpha">
 <li>Plot the fitted LDA object, and interpret its meaning.</li>
 </ol>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(train_lda)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(train_lda)</span></code></pre></div>
 </div>
 </div>
 <div id="model-testing" class="section level1">
 <h1>Model testing</h1>
+<p>It is time to compare the performance of the three logistic models and the two discriminant analyses on the test set.</p>
 <ol style="list-style-type: lower-alpha">
-<li>Use the function <code>predict()</code> to get the predictions of the three logistic models and the two discriminant analyses on the test set. Use the argument <code>type = &quot;response&quot;</code> for the logistic models. Save the objects under an appropriate name (e.g. <code>pred_glm</code>, <code>pred_lasso</code>, etc.).</li>
+<li>Save the predictions of these models on the test set with the function <code>predict()</code>. Check the help files for <code>predict.glm</code>, <code>predict.lda</code> and <code>predict.qda</code> for the arguments. Save the objects under appropriate names (e.g. <code>pred_glm</code>, <code>pred_lasso</code>, etc.).</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pred_glm    <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_glm, </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">newdata =</span> spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>], </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>pred_lasso  <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_cv.lasso, </span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">newx =</span> <span class="fu">as.matrix</span>(spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>]), </span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">type =</span> <span class="st">&quot;response&quot;</span>) </span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>pred_ridge  <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_cv.ridge, </span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">newx =</span> <span class="fu">as.matrix</span>(spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>]), </span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>                            <span class="at">type =</span> <span class="st">&quot;response&quot;</span>) </span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>pred_lda    <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_lda, spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>])</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>pred_qda    <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_qda, spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pred_glm    <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_glm, </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">newdata =</span> spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>], </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>pred_lasso  <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_cv.lasso, </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">newx =</span> <span class="fu">as.matrix</span>(spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>]), </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">type =</span> <span class="st">&quot;response&quot;</span>) </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>pred_ridge  <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_cv.ridge, </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">newx =</span> <span class="fu">as.matrix</span>(spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>]), </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>                            <span class="at">type =</span> <span class="st">&quot;response&quot;</span>) </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>pred_lda    <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_lda, spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>])</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>pred_qda    <span class="ot">&lt;-</span> <span class="fu">predict</span>(train_qda, spam4[<span class="sc">-</span>train, <span class="sc">-</span><span class="dv">58</span>])</span></code></pre></div>
 <ol start="2" style="list-style-type: lower-alpha">
-<li>Check the content of the predicted objects, and for each model compute or extract a factor with the predicted classifications “nospam” and “spam”. Save these under an appropriate name (e.g. <code>class_glm</code>, <code>class_lasso</code>, etc.).</li>
+<li>Check the content of the predicted objects, and either compute or extract the factor with the predicted classifications “nospam” and “spam”. Save these factors under appropriate names (e.g. <code>class_glm</code>, <code>class_lasso</code>, etc.).</li>
 </ol>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>class_glm   <span class="ot">&lt;-</span> <span class="fu">factor</span>(pred_glm <span class="sc">&gt;</span> .<span class="dv">5</span>, </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;nonspam&quot;</span>, <span class="st">&quot;spam&quot;</span>))</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>class_lasso <span class="ot">&lt;-</span> <span class="fu">factor</span>(pred_lasso <span class="sc">&gt;</span> <span class="fl">0.5</span>, </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;nonspam&quot;</span>, <span class="st">&quot;spam&quot;</span>))</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>class_ridge <span class="ot">&lt;-</span> <span class="fu">factor</span>(pred_ridge <span class="sc">&gt;</span> <span class="fl">0.5</span>, </span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                             <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;nonspam&quot;</span>, <span class="st">&quot;spam&quot;</span>))</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>class_lda   <span class="ot">&lt;-</span> pred_lda<span class="sc">$</span>class</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>class_qda   <span class="ot">&lt;-</span> pred_qda<span class="sc">$</span>class</span></code></pre></div>
-<ol start="3" style="list-style-type: lower-alpha">
-<li>Display the confusion matrices of the three logistic and two discriminant models, and save them under an appropriate names.</li>
-</ol>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(conf_glm   <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">observed  =</span> spam4<span class="sc">$</span>type[<span class="sc">-</span>train], </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">predicted =</span> class_glm))</span>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>class_glm   <span class="ot">&lt;-</span> <span class="fu">factor</span>(pred_glm <span class="sc">&gt;</span> .<span class="dv">5</span>, </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;nonspam&quot;</span>, <span class="st">&quot;spam&quot;</span>))</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>(conf_lasso <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">observed  =</span> spam4[<span class="sc">-</span>train, <span class="dv">58</span>], </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">predicted =</span> class_lasso))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>class_lasso <span class="ot">&lt;-</span> <span class="fu">factor</span>(pred_lasso <span class="sc">&gt;</span> <span class="fl">0.5</span>, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;nonspam&quot;</span>, <span class="st">&quot;spam&quot;</span>))</span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>(conf_ridge <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">observed  =</span> spam4[<span class="sc">-</span>train, <span class="dv">58</span>], </span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">predicted =</span> class_ridge))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>class_ridge <span class="ot">&lt;-</span> <span class="fu">factor</span>(pred_ridge <span class="sc">&gt;</span> <span class="fl">0.5</span>, </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                             <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;nonspam&quot;</span>, <span class="st">&quot;spam&quot;</span>))</span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>(conf_lda   <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">observed  =</span> spam4[<span class="sc">-</span>train, <span class="dv">58</span>], </span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">predicted =</span> class_lda))</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>(conf_qda   <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">observed  =</span> spam4[<span class="sc">-</span>train, <span class="dv">58</span>], </span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>                     <span class="at">predicted =</span> class_qda))</span></code></pre></div>
-<ol start="4" style="list-style-type: lower-alpha">
-<li>Compute and display the misclassification test error rates of the five models (to compute these, copy-paste and run the function <code>miscl &lt;- function(x) 1  - sum(diag(x)) / sum(x)</code>, and then fill in the name of the model’s confusion matrix at <code>x</code>).</li>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>class_lda   <span class="ot">&lt;-</span> pred_lda<span class="sc">$</span>class</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>class_qda   <span class="ot">&lt;-</span> pred_qda<span class="sc">$</span>class</span></code></pre></div>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>Display the confusion matrices of the five models, and save them under appropriate names.</li>
 </ol>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>miscl <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="dv">1</span> <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(x)) <span class="sc">/</span> <span class="fu">sum</span>(x)</span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">glm   =</span> <span class="fu">miscl</span>(conf_glm),</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">lasso =</span> <span class="fu">miscl</span>(conf_lasso),</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">ridge =</span> <span class="fu">miscl</span>(conf_ridge),</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">lda   =</span> <span class="fu">miscl</span>(conf_lda),</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">qda   =</span> <span class="fu">miscl</span>(conf_qda)) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">4</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>conf <span class="ot">&lt;-</span> <span class="cf">function</span>(est) <span class="fu">table</span>(<span class="at">obs =</span> spam4<span class="sc">$</span>type[<span class="sc">-</span>train], <span class="at">est =</span> est)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>(conf_glm   <span class="ot">&lt;-</span> <span class="fu">conf</span>(class_glm))</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>(conf_lasso <span class="ot">&lt;-</span> <span class="fu">conf</span>(class_lasso))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>(conf_ridge <span class="ot">&lt;-</span> <span class="fu">conf</span>(class_ridge))</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>(conf_lda   <span class="ot">&lt;-</span> <span class="fu">conf</span>(class_lda))</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>(conf_qda   <span class="ot">&lt;-</span> <span class="fu">conf</span>(class_qda))</span></code></pre></div>
+<ol start="4" style="list-style-type: lower-alpha">
+<li>Compute and display the misclassification test error rates of the five models.</li>
+</ol>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>miscl <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="dv">1</span> <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(x)) <span class="sc">/</span> <span class="fu">sum</span>(x)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">glm   =</span> <span class="fu">miscl</span>(conf_glm),</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">lasso =</span> <span class="fu">miscl</span>(conf_lasso),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">ridge =</span> <span class="fu">miscl</span>(conf_ridge),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">lda   =</span> <span class="fu">miscl</span>(conf_lda),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">qda   =</span> <span class="fu">miscl</span>(conf_qda)) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">4</span>) </span></code></pre></div>
 <ol start="5" style="list-style-type: lower-alpha">
-<li>In one figure, display the ROC curves (in different colors) for the test set with the predicted probabilities i) generated by the random variable <code>runif(1150)</code>, ii) of the lasso model and iii) of the QDA. Interpret the plots.</li>
+<li><p>In one figure, display and interpret the ROC curves (in different colors) for the predicted probabilities of</p>
+<ul>
+<li><p>the random variable <code>runif(1150)</code></p></li>
+<li><p>the lasso model</p></li>
+<li><p>the QDA.</p></li>
+</ul></li>
 </ol>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">roc</span>(spam4[<span class="sc">-</span>train, <span class="dv">58</span>], <span class="fu">runif</span>(<span class="dv">1150</span>)))</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">roc</span>(spam4[<span class="sc">-</span>train, <span class="dv">58</span>], pred_glm), <span class="at">add =</span> T, <span class="at">col=</span><span class="st">&quot;blue&quot;</span>)</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">roc</span>(spam4[<span class="sc">-</span>train, <span class="dv">58</span>], pred_qda<span class="sc">$</span>posterior[, <span class="dv">2</span>]), <span class="at">add =</span> T, <span class="at">col=</span><span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<hr />
+<p>END OF LAB</p>
 </div>
 
 
