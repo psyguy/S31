@@ -68,7 +68,7 @@ d. Even for large values of `df` it is difficult to get good predictions for the
 
 The data set `Fortune500` for this exercise are on the 500 richest companies in the USA. 
 
-a. Download the data with the command `load(url(("https://surfdrive.surf.nl/files/index.php/s/vLhZsV9UTrhC6GF/download"))`.
+a. Load the data in workspace, either indirectly by first saving it on your machine or directly with the command `load(url("https://maartencruyff.github.io/S31/2A-Feature Space Expansion/data/Fortune500.Rdata"))`.
 
 ```{r}
 
@@ -81,7 +81,7 @@ b. Visualize the relationship  in a scatterplot with `Assets` on the y-axis and 
 ```
 
 
-The aim is to select the best model for predicting `Assets` from `Profits`. The candidates are polynomial models (linear, quadratic, cubic and quartic), a regression tree, and _k_-nearest neighbors. We use straightforward 10-fold cross-validation to control for overfitting (so we do not create a separate test set).
+The aim is to select the best model for predicting `Assets` from `Profits`. The candidates are polynomial models (linear, quadratic, cubic and quartic), a regression tree, and _k_-nearest neighbors. To simplify matters, we do not create a training and test, but we perform a 10-fold cross-validation for each model using the entire sample, and select the model with the lowest cross-validated RMSE.
 
 
 

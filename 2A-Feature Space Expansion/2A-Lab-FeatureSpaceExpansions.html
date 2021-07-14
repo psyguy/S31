@@ -396,16 +396,16 @@ div.tocify {
 <h1>Fortune500 data</h1>
 <p>The data set <code>Fortune500</code> for this exercise are on the 500 richest companies in the USA.</p>
 <ol style="list-style-type: lower-alpha">
-<li>Download the data with the command <code>load(url((&quot;https://surfdrive.surf.nl/files/index.php/s/vLhZsV9UTrhC6GF/download&quot;))</code>.</li>
+<li>Load the data in workspace, either indirectly by first saving it on your machine or directly with the command <code>load(url(&quot;https://maartencruyff.github.io/S31/2A-Feature Space Expansion/data/Fortune500.Rdata&quot;))</code>.</li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">url</span>(<span class="st">&quot;https://surfdrive.surf.nl/files/index.php/s/vLhZsV9UTrhC6GF/download&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">url</span>(<span class="st">&quot;https://maartencruyff.github.io/S31/2A-Feature Space Expansion/data/Fortune500.Rdata&quot;</span>))</span></code></pre></div>
 <ol start="2" style="list-style-type: lower-alpha">
 <li>Visualize the relationship in a scatterplot with <code>Assets</code> on the y-axis and <code>Profits</code> on the x-axis. Based on this plot, what seems to be the best choice for the polynomial degree of <code>Assets</code>?</li>
 </ol>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(Fortune500, <span class="fu">aes</span>(Profits, Assets)) <span class="sc">+</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
-<p>The aim is to select the best model for predicting <code>Assets</code> from <code>Profits</code>. The candidates are polynomial models (linear, quadratic, cubic and quartic), a regression tree, and <em>k</em>-nearest neighbors. We use straightforward 10-fold cross-validation to control for overfitting (so we do not create a separate test set).</p>
+<p>The aim is to select the best model for predicting <code>Assets</code> from <code>Profits</code>. The candidates are polynomial models (linear, quadratic, cubic and quartic), a regression tree, and <em>k</em>-nearest neighbors. To simplify matters, we do not create a training and test, but we perform a 10-fold cross-validation for each model using the entire sample, and select the model with the lowest cross-validated RMSE.</p>
 <div id="polynomial-models" class="section level2">
 <h2>Polynomial models</h2>
 <p>We start with testing the performances of the linear, quadratic, cubic and quartic models in the traditional way, i.e. by testing significance of the R^2-change when increasing the polynomial degree. So we do not cross-validate, but we just test the R^2 change of the four models with the function <code>anova()</code>.</p>
@@ -453,7 +453,7 @@ div.tocify {
 </div>
 <div id="regression-trees" class="section level2">
 <h2>Regression trees</h2>
-<p>A regression tree partitions the variable <code>Profits</code> in on-overlapping regions, and assigns mean of <code>Assets</code> within each region as predicted value,</p>
+<p>A regression tree partitions the variable <code>Profits</code> in on-overlapping regions, and assigns mean of <code>Assets</code> within each region as predicted value.</p>
 <ol style="list-style-type: lower-alpha">
 <li><p>Use the function <code>rpart()</code> (check its help page), and fit a tree to the data using the “anova” method. Save the fitted object as <code>tree</code>.</p></li>
 <li><p>Plot the <code>tree</code> object, and interpret the plot.</p></li>
@@ -461,14 +461,14 @@ div.tocify {
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tree)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(tree)</span></code></pre></div>
 <ol start="3" style="list-style-type: lower-alpha">
-<li>Trees tend to overfit, so we will now perform cross-validation on the <code>tree</code> object to find the optimal value for the hyperparameter <code>cp</code>, which controls the complexity of the tree. You can do this with the <code>train()</code> function with <code>method = rpart</code>. Save the object as <code>tree_cv</code>.</li>
+<li>Trees tend to overfit, so we perform cross-validation on the <code>tree</code> object to find the optimal value for the hyperparameter <code>cp</code>, which controls the complexity of the tree. You can do this with the <code>train()</code> function with <code>method = rpart</code>. Save the object as <code>tree_cv</code>.</li>
 </ol>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>tree_cv <span class="ot">&lt;-</span> <span class="fu">train</span>(Assets <span class="sc">~</span> Profits, </span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> Fortune500, </span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">method =</span> <span class="st">&quot;rpart&quot;</span>,</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">&quot;cv&quot;</span>))</span></code></pre></div>
 <ol start="4" style="list-style-type: lower-alpha">
-<li>Obtain the predictions of <code>tree_cv</code> witht he function <code>predict()</code>, and save them as <code>pred_tree_cv</code>.</li>
+<li>Obtain the predictions of <code>tree_cv</code> with the function <code>predict()</code>, and save them as <code>pred_tree_cv</code>.</li>
 </ol>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pred_tree_cv <span class="ot">&lt;-</span> <span class="fu">predict</span>(tree_cv, Fortune500)</span></code></pre></div>
 <ol start="5" style="list-style-type: lower-alpha">
@@ -483,7 +483,7 @@ div.tocify {
 </div>
 <div id="knn" class="section level2">
 <h2>KNN</h2>
-<p>KNN assigns the mean of the <em>k</em> nearest neigbors as prediction, where <em>k</em> is a hyperparameter to be determined with cross-validation.</p>
+<p>KNN assigns the mean of the <em>k</em> nearest neighbors as prediction, where <em>k</em> is a hyperparameter to be determined with cross-validation.</p>
 <ol start="2" style="list-style-type: lower-alpha">
 <li>Perform a 10-fold cross-validation on the data with the <code>train()</code> function to determine the optimal value fo <em>k</em>. Save the object as <code>knn_cv</code>.</li>
 </ol>
@@ -558,9 +558,6 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')

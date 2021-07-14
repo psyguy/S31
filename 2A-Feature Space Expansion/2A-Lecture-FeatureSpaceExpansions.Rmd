@@ -21,7 +21,6 @@ library(gridExtra)
 knitr::opts_chunk$set(comment="",
                       echo=F,
                       warning = FALSE,
-                      #fig.dim = c(7, 5.5),
                       out.width = "\\linewidth")
 ```
 
@@ -198,13 +197,15 @@ round(cor(P[, -1]), 3)
 
 - Place a number of knots $\xi$ that divide $X$ in non-overlapping regions
 
-- fit cubic polynomial to each region and connect lines by equating 1st and 2nd derivative
+- fit cubic polynomial to each region 
+
+- connect lines by equating 1st and 2nd derivative
 
 ```{r out.width="60%", fig.align="center"}
 knitr::include_graphics("pics/piecewise.png")
 ```
 
-## Fitting cubis  splines in R 
+## Fitting cubic  splines in R 
 
 Formula for generating B-spline basis matrix in R (package `splines`)
 

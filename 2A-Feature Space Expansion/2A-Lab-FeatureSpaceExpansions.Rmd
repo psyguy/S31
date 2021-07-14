@@ -85,10 +85,10 @@ ggplot(dbbmi, aes(x = age, y = bmi)) +
 
 The data set `Fortune500` for this exercise are on the 500 richest companies in the USA. 
 
-a. Download the data with the command `load(url(("https://surfdrive.surf.nl/files/index.php/s/vLhZsV9UTrhC6GF/download"))`.
+a. Load the data in workspace, either indirectly by first saving it on your machine or directly with the command `load(url("https://maartencruyff.github.io/S31/2A-Feature Space Expansion/data/Fortune500.Rdata"))`.
 
 ```{r}
-load(url("https://surfdrive.surf.nl/files/index.php/s/vLhZsV9UTrhC6GF/download"))
+load(url("https://maartencruyff.github.io/S31/2A-Feature Space Expansion/data/Fortune500.Rdata"))
 ```
 
 b. Visualize the relationship  in a scatterplot with `Assets` on the y-axis and `Profits` on the x-axis. Based on this plot, what seems to be the best choice for the polynomial degree of `Assets`?
@@ -100,7 +100,7 @@ ggplot(Fortune500, aes(Profits, Assets)) +
 ```
 
 
-The aim is to select the best model for predicting `Assets` from `Profits`. The candidates are polynomial models (linear, quadratic, cubic and quartic), a regression tree, and _k_-nearest neighbors. We use straightforward 10-fold cross-validation to control for overfitting (so we do not create a separate test set).
+The aim is to select the best model for predicting `Assets` from `Profits`. The candidates are polynomial models (linear, quadratic, cubic and quartic), a regression tree, and _k_-nearest neighbors. To simplify matters, we do not create a training and test, but we perform a 10-fold cross-validation for each model using the entire sample, and select the model with the lowest cross-validated RMSE.
 
 
 
@@ -125,8 +125,6 @@ ggplot(Fortune500, aes(Profits, Assets)) +
   geom_smooth(method = "lm", se = F, formula = y  ~ poly(x, 4)) +
   theme_minimal()
 ```
-
-
 
 
 c. The method we just used is highly data-driven, and thus prone to overfitting. We will now use cross-validation to select the best model. Fit the four models separately with the function  `train()` using 10-fold cross-validation, and compare the cross-validated RMSEs. Which models comes out as best now?
@@ -164,7 +162,7 @@ ggplot(Fortune500, aes(Profits, Assets)) +
 
 ## Regression trees
 
-A regression tree partitions the variable `Profits` in on-overlapping regions, and assigns mean of `Assets` within each region as predicted value, 
+A regression tree partitions the variable `Profits` in on-overlapping regions, and assigns mean of `Assets` within each region as predicted value. 
 
 a. Use the function `rpart()`  (check its help page), and fit a tree to the data using the "anova" method. Save the fitted object as `tree`.
 
@@ -182,7 +180,7 @@ plot(tree)
 text(tree)
 ```
 
-c. Trees tend to overfit, so we will now perform cross-validation on the `tree` object to find the optimal value for the hyperparameter `cp`, which controls the complexity of the tree. You can do this with the `train()` function with `method = rpart`. Save the object as `tree_cv`.
+c. Trees tend to overfit, so we perform cross-validation on the `tree` object to find the optimal value for the hyperparameter `cp`, which controls the complexity of the tree. You can do this with the `train()` function with `method = rpart`. Save the object as `tree_cv`.
 
 
 ```{r}
@@ -193,7 +191,7 @@ tree_cv <- train(Assets ~ Profits,
 ```
 
 
-d. Obtain the predictions of `tree_cv` witht he function `predict()`, and save them as `pred_tree_cv`.
+d. Obtain the predictions of `tree_cv` with the function `predict()`, and save them as `pred_tree_cv`.
 
 ```{r}
 pred_tree_cv <- predict(tree_cv, Fortune500)
@@ -215,7 +213,7 @@ ggplot(Fortune500, aes(Profits, Assets)) +
 
 ## KNN
 
-KNN assigns the mean of the _k_ nearest neigbors as prediction, where _k_ is a hyperparameter to be determined with cross-validation.
+KNN assigns the mean of the _k_ nearest neighbors as prediction, where _k_ is a hyperparameter to be determined with cross-validation.
 
 b. Perform a 10-fold cross-validation on the data with the `train()` function to determine the optimal value fo _k_. Save the object as `knn_cv`. 
 
