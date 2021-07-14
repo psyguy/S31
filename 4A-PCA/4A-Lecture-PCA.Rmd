@@ -64,18 +64,18 @@ knitr::include_graphics("pics/customers.png")
 
 Data of high dimension
 
-- many variables containing different information 
+- many features containing different information 
 
-- high correlations within groups of variables 
+- high correlations within groups of features 
 
-- low correlations between groups of variables
+- low correlations between groups of features
 
 
 $~$
 
 Dimension reduction
 
-- groups of correlated variables form a single principal component
+- groups of correlated features form a single principal component
 
 - different groups form different principal components 
 
@@ -94,15 +94,13 @@ The $p$ principal component $Z_j$ are computed as:
 $$Z_j=\phi_{1j}X_1 + \dots{} + \phi_{pj}X_p, \ \ \ \ j=1,\dots, p$$
 
 
-- $Z_j$ is weighted sum of the variables
+- $Z_j$ is weighted sum of the features
 
-- $\phi_{1j}$ is loading of $X_1$ and $Z_J$ (like a correlation)
+- $\phi_{1j}$ is loading of $X_1$ on $Z_J$ (like a correlation)
 
 $~$
 
-The loadings are computed such that
-
-- $Z_1,\dots{},Z_p$ are ordered in terms of explained variance
+The  $Z_1,\dots{},Z_p$ are ordered in terms of explained variance
 
 
 
@@ -117,11 +115,11 @@ Properties of principal components (PCs)
 
 - explained variance is expressed in _eigenvalues_
 
-- sum of eigenvalues is $p$ (number of variables)
+- sum of eigenvalues is $p$ (number of features)
 
 - PCs with eigenvalues > 1 are considered informative 
 
-- PCS with eigenvalues < 1 are considered noise
+- PCs with eigenvalues < 1 are considered noise
 
 $~$
 
@@ -129,7 +127,7 @@ Dimension reduction criteria, retain PC's
 
 - with eigenvalues > 1
 
-- above the elbow in the scree plot
+- above the elbow in scree plot
 
 ## PCA vs LDA
 
@@ -150,7 +148,7 @@ Facilitates interpretation of PC's
 
 - maximizes loading on one PC 
 
-- minimizes loadings loadings on others
+- minimizes loadings on others
 
 
 ```{r echo=F,  out.width="90%", fig.align = 'center'}
@@ -200,13 +198,13 @@ print(loadings(pc4), cutoff = .1)
 ```
 
 
-## The four eigenvalues
+## Elbow criterion
 
 ```{r}
 VSS.scree(iris[, -5])
 ```
 
-**Conclusion**: One PC needed, but let's select two
+**Conclusion**: Extract one or two PCs (elbow is unclear)
 
 ## Unrotated loadings
 
@@ -268,8 +266,11 @@ Function `prcomp()` handles data with $p>n$
 ```{r echo = TRUE}
 pc2 <- prcomp(x = iris[, -5]) 
 ```
+\normalsize
 
+$~$
 
+We need this function in the lab for some exercises.
 
 
 
