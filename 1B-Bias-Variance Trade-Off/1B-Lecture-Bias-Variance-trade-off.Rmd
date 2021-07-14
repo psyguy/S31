@@ -156,7 +156,7 @@ What is the best model choice?
 
 $~$
 
-But how to determine which one perfoms best???
+But how to determine which one performs best???
 
 # Bias-variance trade-off
 
@@ -194,14 +194,15 @@ $~$
 
 Increasing model complexity with polynomials
 
-- Linear model with intercept and slope
+- Linear model (2 parameters)
 
 $$f(x)=\beta_0+\beta{x}, \ \ \ \ \epsilon\sim{N}(0,\sigma^2_\epsilon)$$
-- Quadratic model with intercept and  2 slopes
+
+- Quadratic model (3 parameters)
 
 $$f(x)=\beta_0+\beta_1{x}+\beta_2x^2$$
 
-- Cubic model with intercept and 3 slopes)
+- Cubic model (4 parameters)
 
 $$f(x)=\beta_0+\beta_1{x}+\beta_2x^2+\beta_3x^3$$
 
@@ -209,7 +210,7 @@ etc.
 
 ## Data points generated from $f(x)$
 
-What is $f(x)$? And if polynomial, is it . . .
+What is $f(x)$? Is it . . .
 
 - linear, quadratic, cubic, etc.?
 
@@ -233,7 +234,7 @@ Fit all polynomial models to the data
 
 $~$
 
-The model with the smallest MSE most resembles the true $f(x)$?
+The model with the smallest MSE most resembles the true $f(x)$.
 
 
 
@@ -325,9 +326,9 @@ quartic   | `r round(mean((y2-predict(bs4, data.frame(x=x2)))^2), 3)`
 
 $~$ 
 
-- quadratic models performs best
+- quadratic model performs best
 
-- quartic model performs extremely poor
+- quartic model performs worst
 
 
 ## True $f(x)$
@@ -357,20 +358,17 @@ $~$
 
 - to estimate the model parameters (train the model) 
 
-- if  model includes hyperparameter(s), further split in training and validation sets   
-
-    - training and validation of hyperparameterswith cross-validation
+- and cross-validate hyperparameter(s) 
 
 
 **Test set**: 
 
-- to evaluate model performance 
+- evaluate model performance 
 
 - test set not involved in parameter estimation
 
-- so if model has high variance, it will perform poorly on test set
+- high variance models will perform poorly on test set
 
-- punishes overly complex models and thus avoids overfitting of the data 
 
 ## Train/test paradigm
 
@@ -440,18 +438,18 @@ Model training for over 40 different models
 
 ## Example $K$-nearest neighbors (KNN)
 
-Flexible nonparametric model with hyperparameter $K$
+Nonparametric model with hyperparameter $K$
 
 
 $$f(x)=\frac{1}{K}\sum_{i=1}^K(y|x_i\in\text{neighborhood of } 4)$$
+Predicted value is mean of nearest neighbors  
+
+
 
 
 ```{r echo=F, out.width="90%"}
 knitr::include_graphics("pics/KNN.png")
 ```
-
-Prediction for $x=4$ is average of the $K$ nearest data points  
-
 
 
 
@@ -463,7 +461,7 @@ Prediction for $x=4$ is average of the $K$ nearest data points
 
 ## Cross-validation procedure
 
-Example for K-Nearest Neighbors (K is hyperparameter)
+Determine optimal value of K 
 
 \footnotesize
 
@@ -484,7 +482,7 @@ knn_train <- train(formula,
                                             number = 5)
                    )
 
-# get predictions for test set
+# get predictions for test set with cross-validated K
 knn_test <- predict(knn_train, newdata = Test)
 ```
 
@@ -493,13 +491,9 @@ knn_test <- predict(knn_train, newdata = Test)
 
 Bias-variance trade-off:
 
-- simple models may inderfit (bias), complex models may overfit (variance)
+- simple models are biased, complex models have high variance
 
-- train/test or train/dev/test procedure finds optimal bias-variance trade-off
-
-    - cross-validation to find optimal hyperparameter values  (if present)
-    
-    - cross-validation sometimes used instead of train/test
+- train/dev/test procedure for optimal bias-variance trade-off
 
 
 $~$
