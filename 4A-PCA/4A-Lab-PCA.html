@@ -352,11 +352,12 @@ div.tocify {
 
 
 <hr />
-<p>In this lab you perform a PCA to a personality test, a text and photo’s of faces.</p>
+<p>In this lab you perform a PCA to a personality test, a bag of words and photo’s of faces.</p>
 <p>For this lab you need the packages <code>stylo</code> and <code>psych</code>, and the data sets in <code>Profession.Rdata</code> and <code>faces.RData</code>.</p>
+<hr />
 <div id="personality-types" class="section level1">
 <h1>Personality types</h1>
-<p>The file “Profession.Rdata” contains the data set <code>Profession</code> with preference scores of 5389 subjects on 48 professions. The professions are subdivided in 6 sets of 8, each corresponding to different personality type (e.g. items A1 to A8 are professions that are appealing to personality type “R = Realistic”). The code book for the data is <code>Profession.txt</code>. The aim of the analysis is to a principal component for each of the six personality types.</p>
+<p>The file “Profession.Rdata” contains the data set <code>Profession</code> with preference scores of 5389 subjects on 48 professions. The professions are subdivided in 6 sets of 8, with each set corresponding to different personality type (e.g. items R1 to R8 are professions that are supposed to be appealing to personality type “R = Realistic (Doers)”). The code book for the data is <code>Profession.txt</code>. The aim of the analysis is to find a principal component for each of the six personality types.</p>
 <ol style="list-style-type: lower-alpha">
 <li>Load the data file “Profession.Rdata”, and display the scree plot for the <code>profession</code> data. How many PCs does the plot suggest?</li>
 </ol>
@@ -418,17 +419,18 @@ freqs    &lt;- make.table.of.frequencies(tokens,
 </ol>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">screeplot</span>(author_pca, <span class="at">type=</span><span class="st">&quot;line&quot;</span>)</span></code></pre></div>
 <ol start="5" style="list-style-type: lower-alpha">
-<li>Display the biplot of PC1 and PC2, and interpret the plot. Which of the four authors uses “a” and “the” most frequently, and which authors are charaterized by the frequent use of “and”?</li>
+<li>Display the biplot of PC1 and PC2, and interpret the plot. Which of the four authors uses “a” and “the” most frequently, and which authors are characterized by the frequent use of “and”?</li>
 </ol>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">biplot</span>(author_pca, <span class="at">cex =</span> .<span class="dv">8</span>)</span></code></pre></div>
 </div>
 <div id="eigenfaces" class="section level1">
 <h1>Eigenfaces</h1>
-<p>The data set for this exercise is called <code>faces</code> and in the file <code>faces.RData</code>. Load this file into workspce with the function <code>load()</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;faces.RData&quot;</span>)</span></code></pre></div>
-<p>The aim of the analysis to is to create a reduced number of principal components that stereotype of faces, a.k.a <em>eigenfaces</em>. Eigenfaces can be interpreted as a summary of faces with (much of) the same characteristics.</p>
-<p>The data for this analysis consist of 2410 pictures of faces of which the pixels are converted to gray scales in the range <span class="math inline">\((0, 255)\)</span>. The pictures all have 8064 pixels <span class="math inline">\((96\times84)\)</span>.</p>
+<p>The data set for this exercise is called <code>faces</code> and in the file <code>faces.RData</code>. The data for this analysis consist of 2410 pictures of faces of which the pixels are converted to gray scales in the range <span class="math inline">\((0, 255)\)</span>. The pictures all have 8064 pixels <span class="math inline">\((96\times84)\)</span>. The aim of the analysis to is to create a reduced number of principal components that summarize stereotype faces, a.k.a <em>eigenfaces</em>.</p>
 <ol style="list-style-type: lower-alpha">
+<li>Load this file into workspace with the function <code>load()</code>.</li>
+</ol>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;faces.RData&quot;</span>)</span></code></pre></div>
+<ol start="2" style="list-style-type: lower-alpha">
 <li>To get some idea of what the data look like, display a summary columns of the first 5 columns (faces) of <code>faces</code>.</li>
 </ol>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faces[, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>])</span></code></pre></div>
@@ -453,7 +455,7 @@ for(i in sample(1:2410, size = 9)){
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <ol start="6" style="list-style-type: lower-alpha">
 <li><p>Also plot the eigenfaces of the last 9 principal components. How would you interpret the results?</p></li>
-<li><p>Plots of the component scores give nonsensical but inspiring results. Run the code below and enjoy!</p></li>
+<li><p>Plots of the component scores give nonsensical but inspiring results. Run the code below and marvel!</p></li>
 </ol>
 <pre><code>par(mfrow=c(3, 2))
 for(i in 1:6)plot(faces_pca$scores[, i])</code></pre>

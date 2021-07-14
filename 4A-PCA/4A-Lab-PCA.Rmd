@@ -3,7 +3,7 @@ title: "Lab 4A"
 subtitle: "Principal Components Analysis"
 date: "`r format(Sys.time(), '%Y')`"
 params:
-  answers: false
+  answers: true
 urlcolor: blue
 output: 
   html_document:
@@ -15,14 +15,21 @@ output:
     theme: paper
     highlight: tango
     code_folding: hide
-    pandoc_args: --output=4A-Lab-PCA.html
+    pandoc_args: --output=4A-Lab-PCA-answers.html
 ---
 
 
+---
+
+
+
+In this lab you perform a PCA to a personality test, a bag of words and photo's of faces.
+
+For this lab you need the packages `stylo` and `psych`, and the data sets in `Profession.Rdata` and `faces.RData`. 
+
 ```{r setup, include=F, message=F}
 knitr::opts_chunk$set(eval=params$answers, 
-                      message=FALSE,
-                      cache=T)
+                      message=FALSE)
 
 library(stylo)
 library(psych)
@@ -31,15 +38,9 @@ library(dplyr)
 
 ---
 
-
-
-In this lab you perform a PCA to a personality test, a text and photo's of faces.
-
-For this lab you need the packages `stylo` and `psych`, and the data sets in `Profession.Rdata` and `faces.RData`. 
-
 # Personality types
 
-The file "Profession.Rdata" contains the data set `Profession` with preference scores of 5389 subjects on 48 professions. The professions are subdivided in 6 sets of 8, each corresponding to different personality type (e.g. items A1 to A8 are professions that are appealing to personality type "R =  Realistic"). The code book for the data is `Profession.txt`. The aim of the analysis is to a principal component for each of the six personality types.
+The file "Profession.Rdata" contains the data set `Profession` with preference scores of 5389 subjects on 48 professions. The professions are subdivided in 6 sets of 8, with each set corresponding to different personality type (e.g. items R1 to R8 are professions that are supposed to be appealing to personality type "R =  Realistic (Doers)"). The code book for the data is `Profession.txt`. The aim of the analysis is to find a principal component for each of the six personality types.
 
 
 a. Load the data file "Profession.Rdata", and display the scree plot for the `profession` data. How many PCs does the plot suggest? 
@@ -150,7 +151,7 @@ screeplot(author_pca, type="line")
 ```
 
 
-e. Display the biplot of PC1 and PC2, and interpret the plot. Which of the four authors uses "a" and "the" most frequently, and which authors are charaterized by the frequent use of "and"?
+e. Display the biplot of PC1 and PC2, and interpret the plot. Which of the four authors uses "a" and "the" most frequently, and which authors are characterized by the frequent use of "and"?
 
 ```{r fig.width = 7, fig.height = 7}
 biplot(author_pca, cex = .8)
@@ -159,18 +160,20 @@ biplot(author_pca, cex = .8)
 
 # Eigenfaces
 
-The data set for this exercise is called `faces` and in the file `faces.RData`. Load this file into workspce with the function `load()`. 
+The data set for this exercise is called `faces` and in the file `faces.RData`. The data for this analysis consist of 2410 pictures of faces of which the pixels are converted to gray scales in the range $(0, 255)$. The pictures all have 8064 pixels  $(96\times84)$. The aim of the analysis to is to create a reduced number of principal components that summarize stereotype faces, a.k.a _eigenfaces_.
+
+
+
+
+
+a. Load this file into workspace with the function `load()`. 
 
 ```{r}
 load("faces.RData")
 ```
 
-The aim of the analysis to is to create a reduced number of principal components that stereotype of faces, a.k.a _eigenfaces_. Eigenfaces can be interpreted as a summary of faces with (much of) the same characteristics.
 
-The data for this analysis consist of 2410 pictures of faces of which the pixels are converted to gray scales in the range $(0, 255)$. The pictures all have 8064 pixels  $(96\times84)$.
-
-
-a. To get some idea of what the data look like, display a summary columns of the first 5 columns (faces) of `faces`.
+b. To get some idea of what the data look like, display a summary columns of the first 5 columns (faces) of `faces`.
 
 ```{r}
 summary(faces[, 1:5])
@@ -197,7 +200,7 @@ for(i in sample(1:2410, size=9)){
 
 d. Perform a PCA on `faces` using `prcomp()` (may take a while), and save the result. 
 
-```{r}
+```{r pac, cache=T}
 faces_pca <- prcomp(faces)
 ```
 
@@ -225,7 +228,7 @@ for(i in 2402:2410){
 
 
 
-g. Plots of the component scores give nonsensical but inspiring results. Run the code below and enjoy!
+g. Plots of the component scores give nonsensical but inspiring results. Run the code below and marvel!
 
 ```
 par(mfrow=c(3, 2))
