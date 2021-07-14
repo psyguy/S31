@@ -3,7 +3,7 @@ title: "DAV: Lab 4B"
 subtitle: "Clustering"
 date: "`r format(Sys.time(), '%Y')`"
 params:
-  answers: false
+  answers: true
 urlcolor: blue
 output: 
   html_document:
@@ -14,7 +14,7 @@ output:
     theme: paper
     highlight: tango
     code_folding: hide
-    pandoc_args: --output=4B-Lab-Clustering.html
+    pandoc_args: --output=4B-Lab-Clustering-answers.html
 ---
 
 
@@ -145,6 +145,7 @@ load("animals.Rdata")
 rownames(animals)
 summary(animals)
 ```
+
 b. Plot the dendograms of the hierarchical cluster analyses on the original `animals` data, one with the default  linkage method "complete", and one one with "ward.D2" (if you like, you can also look at other linkage methods). What do you expect to see, given that you did not standardize the features?
 
 ```{r}
@@ -154,7 +155,7 @@ plot(hclust(dist(animals), method = "ward.D2"),  cex = .8)
 
 
 
-c. Re-plot the dendograms of the previous exercise , but now with after standardizing the features? Does this improve the clustering?
+c. Re-plot the dendograms of the previous exercise , but now after standardizing the features? Does this improve the clustering?
 
 ```{r}
 plot(hclust(dist(scale(animals))), cex = .8)

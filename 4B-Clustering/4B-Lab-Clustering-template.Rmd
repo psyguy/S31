@@ -94,6 +94,7 @@ a. Load  `animals.Rdata` in workspace, and display the rownames and the summary 
 ```{r}
 
 ```
+
 b. Plot the dendograms of the hierarchical cluster analyses on the original `animals` data, one with the default  linkage method "complete", and one one with "ward.D2" (if you like, you can also look at other linkage methods). What do you expect to see, given that you did not standardize the features?
 
 ```{r}
@@ -102,7 +103,7 @@ b. Plot the dendograms of the hierarchical cluster analyses on the original `ani
 
 
 
-c. Re-plot the dendograms of the previous exercise , but now with after standardizing the features? Does this improve the clustering?
+c. Re-plot the dendograms of the previous exercise , but now after standardizing the features? Does this improve the clustering?
 
 ```{r}
 
