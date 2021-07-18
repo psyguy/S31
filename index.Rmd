@@ -76,7 +76,7 @@ The software needed for the R labs is freely available on the internet, and incl
 
 - R packages, including the `tidyverse` package 
 
-Make sure to you have the latest versions of R and RStudio installed, and that you regularly update your pacakges!
+Make sure to you have the latest versions of R and RStudio installed, and that you regularly update your packages!
 
 **Course materials**
 
