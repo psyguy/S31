@@ -1,19 +1,21 @@
 ---
-title: "S31: Data Analysis"
-subtitle: "Data Visualization"
-author: "Maarten Cruyff"
+title: 'S31: Data Analysis'
+author: "Maarten Cruyff, Manuel Haqiqatkhah"
+subtitle: Data Visualization
 output:
+  # ioslides_presentation: default
   beamer_presentation:
-    theme: "metropolis"
+    theme: metropolis
     latex_engine: xelatex
+    fig_caption: yes
 fontsize: 10pt
-    
 ---
  
 
 ```{r include=F, message=F}
 library(tidyverse)
 library(gridExtra)
+library(cowplot)
 ```
 
 
@@ -100,26 +102,18 @@ $~$
 
 \footnotesize
 
-- proportions should correspond to area/surface 
+Proportion of ink should be directly proportional to the **numerical quantities** represented. 
 
-
-```{r echo=F, out.width="50%", fig.align = 'center'}
-knitr::include_graphics("pics/Junk.jpg")
-```
-
-
-## Early example
-
-```{r echo=F, out.width="90%", fig.align = 'center'}
-knitr::include_graphics("pics/Nightingale-mortality.jpg")
+```{r echo=F, out.width="100%", fig.align = 'center'}
+knitr::include_graphics("pics/Tube_surface_area.png")
 ```
 
 ## Maximize data-to-ink ratio
 
-- use of colors and text sparsely
+Try using color and text separately
 
-```{r echo=F, out.width="80%", fig.align = 'center'}
-knitr::include_graphics("pics/DataInk.jpg")
+```{r echo=F, out.width="90%", fig.align = 'center', fig.cap="Figures from darkhorseanalytics.com"}
+knitr::include_graphics("pics/data-better-naked.png")
 ```
 
 
@@ -131,12 +125,105 @@ knitr::include_graphics("pics/junk-diamonds.jpg")
 ```
 
 
-
 ## Tufte in practice
 
 ```{r echo=F, out.width="60%", fig.align = 'center'}
 knitr::include_graphics("pics/tufte-scatter.png")
 ```
+
+# Additional Advice
+
+## Avoid pie charts at all costs
+
+Pie charts are the worst charts.
+
+1. It is hard to compare angular differences within a chart
+
+2. Comparing multiple charts is very hard
+
+3. Matching labels is confusing
+
+4. Orientation of slices affects perception
+
+5. Coloring of slices affect perception
+
+
+```{r echo=F, out.height="45%", fig.align = 'center'}
+knitr::include_graphics("pics/pie-coloring.png")
+```
+
+*"The only thing worse than a pie chart is several of them."*
+
+## Replace pie charts with (stacked) bar charts
+
+```{r echo=F, out.height="90%", fig.align = 'center'}
+knitr::include_graphics("pics/pie-vs-stacked.png")
+```
+
+## Better to avoid box/dynamite plots
+
+Box plots (and dynamite plots) are very prevalent, though they miss a lot of valuable information/differences.
+
+```{r echo=F, out.height="50%", fig.align = 'center'}
+knitr::include_graphics("pics/boxplot-alternatives.png")
+```
+
+You may use violin/pirate plots (`yarrr::pirateplot()`), jitterred scatter plots (`geom_jitter()`), or raincloud plots (`raincloudplots`) instead.
+See [this tutorial](https://www.cedricscherer.com/2021/06/06/visualizing-distributions-with-raincloud-plots-with-ggplot2/).
+
+
+## Avoid adding more dimensions
+
+If you are plotting a one-dimensional variable, only represent it with one dimension (cf. proportionality)
+
+```{r echo=F, out.width="70%", fig.align = 'center'}
+knitr::include_graphics("pics/keep-1d.png")
+```
+
+## Avoid 3D in general
+
+Reading a plot should not require spatial reasoning.
+
+```{r echo=F, out.width="100%", fig.align = 'center'}
+knitr::include_graphics("pics/no-3d.png")
+```
+
+## Consider (not) including zero in the y-axis
+
+**Oftentimes** truncating the y-axis is misleading (cf. [this blog post](https://digitalblog.ons.gov.uk/2016/06/27/does-the-axis-have-to-start-at-zero-part-1-line-charts/)).
+
+```{r echo=F, out.width="100%", fig.align = 'center'}
+knitr::include_graphics("pics/visualize-zero.png")
+```
+
+## Rethink before plotting data on maps
+
+Coloring regions on maps are often misleading.
+
+```{r echo=F, out.width="100%", fig.align = 'center'}
+knitr::include_graphics("pics/us-election.png")
+```
+
+## Consider (colorblind-friendly) colors
+
+Up to [10% of adults](https://www.colour-blindness.com/general/prevalence/) live with some degree of color vision deficiency (CVD), and the red-green colorblindness is most prevalent (8%).
+
+Moreover, your plots will most-likely be printed in black and white.
+
+```{r echo=F, out.height="40%", fig.align = 'center'}
+knitr::include_graphics("pics/cvd-test.jpg")
+```
+
+- Use "safe" colorsets, e.g.,
+`munsell`,
+`viridis`,
+`RColorBrewer`,
+`dichromat`,
+`colorblindr`,
+`shades`,
+`ggsci`.
+
+- Simulate colorblindness on your plots using `colorblindr` package. Try it online: http://hclwizard.org:3000/cvdemulator
 
 
 # Grammar of Graphics
@@ -167,11 +254,22 @@ knitr::include_graphics("pics/grammar.png")
 ```
 
 
+## How to choose a chart?
+
+Check *from Data to Viz* ([data-to-viz.com](https://www.data-to-viz.com/)) to find an appropriate plot:
+
+```{r echo=F, out.height="60%", fig.align = 'center'}
+knitr::include_graphics("pics/data-to-viz.png")
+```
+
+Browse plots with example codes in R Graph Gallery ([r-graph-gallery.com](http://www.r-graph-gallery.com/)).
+
+
 ## Translation to aesthetics, geoms, etc.
 
 
-```{r echo=F, out.width="100%"}
-knitr::include_graphics("pics/ChartSuggestions.jpg")
+```{r echo=F, out.height="90%", fig.align = 'center'}
+knitr::include_graphics("pics/visual-parameters.png")
 ```
 
 # Using `ggplot()` 
